@@ -1,0 +1,372 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Prepare a release PR or publish the current main version."
+        required: true
+        default: prepare-release-pr
+        type: choice
+        options:
+          - prepare-release-pr
+          - publish-current
+      version:
+        description: "Release version as x.y.z. Leave empty in prepare mode to bump the patch version."
+        required: false
+        type: string
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  prepare-release-pr:
+    name: Prepare release PR
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'prepare-release-pr' }}
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Resolve release version
+        id: version
+        shell: bash
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+
+          current_version="$(tr -d '[:space:]' < VERSION)"
+          if [[ ! "$current_version" =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
+            echo "VERSION must use x.y.z format, found: ${current_version:-<empty>}" >&2
+            exit 1
+          fi
+
+          if [[ -n "$REQUESTED_VERSION" ]]; then
+            if [[ ! "$REQUESTED_VERSION" =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
+              echo "Release version must use x.y.z format, found: $REQUESTED_VERSION" >&2
+              exit 1
+            fi
+            release_version="$REQUESTED_VERSION"
+          else
+            [[ "$current_version" =~ ^([0-9]+)[.]([0-9]+)[.]([0-9]+)$ ]]
+            release_version="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.$((BASH_REMATCH[3] + 1))"
+          fi
+
+          if git rev-parse --verify --quiet "refs/tags/v${release_version}" >/dev/null; then
+            echo "Release tag already exists: v${release_version}" >&2
+            exit 1
+          fi
+
+          printf '%s\n' "$release_version" > VERSION
+
+          echo "release_version=${release_version}" >> "$GITHUB_OUTPUT"
+          echo "branch=release/v${release_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Build release notes
+        id: notes
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ steps.version.outputs.release_version }}
+        run: |
+          set -euo pipefail
+
+          notes_file="$(mktemp)"
+          latest_tag="$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1)"
+
+          {
+            echo "## Release v${RELEASE_VERSION}"
+            echo
+            echo "This PR updates VERSION to ${RELEASE_VERSION}."
+            echo
+            echo "## Changes since previous release"
+            echo
+          } > "$notes_file"
+
+          if [[ -n "$latest_tag" ]]; then
+            previous_release_date="$(git log -1 --format=%cI "$latest_tag")"
+            gh pr list \
+              --state merged \
+              --base main \
+              --limit 100 \
+              --search "merged:>${previous_release_date}" \
+              --json number,title,url,author,mergedAt \
+              --jq '. | sort_by(.mergedAt) | reverse | .[] | "- #\(.number) \(.title) by @\(.author.login) (\(.url))"' \
+              >> "$notes_file"
+          else
+            gh pr list \
+              --state merged \
+              --base main \
+              --limit 100 \
+              --json number,title,url,author,mergedAt \
+              --jq '. | sort_by(.mergedAt) | reverse | .[] | "- #\(.number) \(.title) by @\(.author.login) (\(.url))"' \
+              >> "$notes_file"
+          fi
+
+          if ! grep -q '^- #' "$notes_file"; then
+            echo "- No merged pull requests found since the previous release." >> "$notes_file"
+          fi
+
+          {
+            echo
+            echo "## Publish"
+            echo
+            echo "After this PR is merged, this workflow publishes the cache-kmp modules at ${RELEASE_VERSION} to Maven Central, pushes tag v${RELEASE_VERSION}, and creates a GitHub release using these notes."
+          } >> "$notes_file"
+
+          echo "path=${notes_file}" >> "$GITHUB_OUTPUT"
+
+      - name: Create release pull request
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN }}
+          RELEASE_VERSION: ${{ steps.version.outputs.release_version }}
+          RELEASE_BRANCH: ${{ steps.version.outputs.branch }}
+          BODY_FILE: ${{ steps.notes.outputs.path }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${GH_TOKEN:-}" ]]; then
+            echo "RELEASE_BOT_TOKEN is required so the release PR can trigger validation workflows." >&2
+            exit 1
+          fi
+
+          gh repo view "$GITHUB_REPOSITORY" >/dev/null
+
+          git config user.name "voir-release-bot"
+          git config user.email "voir-release-bot@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+          if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" >/dev/null 2>&1; then
+            git fetch origin "$RELEASE_BRANCH"
+            git checkout "$RELEASE_BRANCH"
+          else
+            git checkout -b "$RELEASE_BRANCH"
+          fi
+
+          git add VERSION
+          if git diff --cached --quiet; then
+            echo "Release branch already contains version ${RELEASE_VERSION}."
+          else
+            git commit -m "Release v${RELEASE_VERSION}"
+          fi
+          git push --set-upstream origin "$RELEASE_BRANCH"
+
+          existing_pr="$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$RELEASE_BRANCH" --base main --json url --jq '.[0].url')"
+          if [[ -n "$existing_pr" ]]; then
+            echo "Release PR already exists: $existing_pr"
+            gh pr edit "$existing_pr" --title "Release v${RELEASE_VERSION}" --body-file "$BODY_FILE"
+            exit 0
+          fi
+
+          gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --base main \
+            --head "$RELEASE_BRANCH" \
+            --title "Release v${RELEASE_VERSION}" \
+            --body-file "$BODY_FILE"
+
+  publish:
+    name: Publish to Maven Central
+    runs-on: macos-15
+    timeout-minutes: 60
+    if: >-
+      ${{
+        (github.event_name == 'pull_request' &&
+          github.event.pull_request.merged == true &&
+          startsWith(github.event.pull_request.head.ref, 'release/v')) ||
+        (github.event_name == 'workflow_dispatch' && inputs.mode == 'publish-current')
+      }}
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6
+
+      - name: Resolve published version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          release_version="$(tr -d '[:space:]' < VERSION)"
+          if [[ ! "$release_version" =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
+            echo "VERSION must use x.y.z format, found: ${release_version:-<empty>}" >&2
+            exit 1
+          fi
+
+          release_tag="v${release_version}"
+          if git ls-remote --tags origin "refs/tags/${release_tag}" | grep -q "refs/tags/${release_tag}$"; then
+            echo "Release tag already exists on origin: ${release_tag}" >&2
+            exit 1
+          fi
+
+          echo "release_version=${release_version}" >> "$GITHUB_OUTPUT"
+          echo "release_tag=${release_tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Build release notes
+        id: notes
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.version.outputs.release_tag }}
+        run: |
+          set -euo pipefail
+
+          notes_file="$(mktemp)"
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            jq -r '.pull_request.body // ""' "$GITHUB_EVENT_PATH" > "$notes_file"
+          else
+            previous_tag="$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1)"
+            {
+              echo "## Release ${RELEASE_TAG}"
+              echo
+              echo "Published from the current main branch."
+              echo
+              echo "## Changes since previous release"
+              echo
+            } > "$notes_file"
+
+            if [[ -n "$previous_tag" ]]; then
+              previous_release_date="$(git log -1 --format=%cI "$previous_tag")"
+              gh pr list \
+                --state merged \
+                --base main \
+                --limit 100 \
+                --search "merged:>${previous_release_date}" \
+                --json number,title,url,author,mergedAt \
+                --jq '. | sort_by(.mergedAt) | reverse | .[] | "- #\(.number) \(.title) by @\(.author.login) (\(.url))"' \
+                >> "$notes_file"
+            else
+              gh pr list \
+                --state merged \
+                --base main \
+                --limit 100 \
+                --json number,title,url,author,mergedAt \
+                --jq '. | sort_by(.mergedAt) | reverse | .[] | "- #\(.number) \(.title) by @\(.author.login) (\(.url))"' \
+                >> "$notes_file"
+            fi
+
+            if ! grep -q '^- #' "$notes_file"; then
+              echo "- No merged pull requests found since the previous release." >> "$notes_file"
+            fi
+          fi
+
+          echo "path=${notes_file}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and verify release artifacts
+        run: >-
+          ./gradlew
+          -PreleaseVersion=${{ steps.version.outputs.release_version }}
+          clean
+          build
+          checkKotlinAbi
+          publishAllPublicationsToLocalReleaseRepository
+          --console=plain
+
+      - name: Verify published consumers and dependency isolation
+        run: >-
+          ./gradlew
+          -p samples/consumer
+          -PcacheRepository="${{ github.workspace }}/build/local-maven"
+          -PcacheVersion=${{ steps.version.outputs.release_version }}
+          clean
+          build
+          --refresh-dependencies
+          --console=plain
+
+      - name: Validate Maven Central credentials
+        shell: bash
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          MAVEN_GPG_PRIVATE_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$MAVEN_CENTRAL_USERNAME" ]]; then
+            echo "CENTRAL_USERNAME repository secret is required." >&2
+            exit 1
+          fi
+          if [[ -z "$MAVEN_CENTRAL_PASSWORD" ]]; then
+            echo "CENTRAL_PASSWORD repository secret is required." >&2
+            exit 1
+          fi
+          if [[ -z "$MAVEN_GPG_PRIVATE_KEY" ]]; then
+            echo "MAVEN_GPG_PRIVATE_KEY repository secret is required." >&2
+            exit 1
+          fi
+
+      - name: Publish to Maven Central
+        run: >-
+          ./gradlew
+          publishToMavenCentral
+          -PreleaseVersion=${{ steps.version.outputs.release_version }}
+          --no-configuration-cache
+          --console=plain
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
+      - name: Create and push git tag
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ steps.version.outputs.release_tag }}
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git tag -a "$RELEASE_TAG" -m "Release $RELEASE_TAG"
+          git push origin "$RELEASE_TAG"
+
+      - name: Create GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.version.outputs.release_tag }}
+          NOTES_FILE: ${{ steps.notes.outputs.path }}
+        run: |
+          set -euo pipefail
+
+          gh release create "$RELEASE_TAG" \
+            --title "$RELEASE_TAG" \
+            --notes-file "$NOTES_FILE"

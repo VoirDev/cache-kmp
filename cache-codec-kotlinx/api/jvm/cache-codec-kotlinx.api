@@ -1,0 +1,15 @@
+public final class dev/voir/cache/codec/kotlinx/CachePayloadCodecException : java/lang/IllegalArgumentException {
+}
+
+public abstract interface class dev/voir/cache/codec/kotlinx/JsonPayloadMigration {
+	public abstract fun decode (Lkotlinx/serialization/json/Json;Ljava/lang/String;)Ljava/lang/Object;
+}
+
+public final class dev/voir/cache/codec/kotlinx/KotlinxJsonCacheCodec : dev/voir/cache/core/codec/CacheCodec {
+	public fun <init> (Lkotlinx/serialization/KSerializer;ILkotlinx/serialization/json/Json;Ljava/util/Map;)V
+	public synthetic fun <init> (Lkotlinx/serialization/KSerializer;ILkotlinx/serialization/json/Json;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun decode ([BI)Ljava/lang/Object;
+	public fun encode (Ljava/lang/Object;)[B
+	public fun getCurrentVersion ()I
+}
+

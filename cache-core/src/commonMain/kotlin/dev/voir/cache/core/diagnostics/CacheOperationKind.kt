@@ -1,0 +1,32 @@
+package dev.voir.cache.core.diagnostics
+
+/** Public cache command or manager-owned operation represented by a structured event. */
+public enum class CacheOperationKind {
+    OBSERVE_HYDRATION,
+    PEEK,
+    CURRENT,
+    GET,
+    REFRESH,
+    PUT,
+    UPDATE,
+    INVALIDATE,
+    INVALIDATE_FAMILY,
+    REMOVE,
+    REMOVE_FAMILY,
+    CLEAR_NAMESPACE,
+    CLEAR_PARTITION,
+    CLEAR_ALL,
+    PRUNE,
+    STORAGE_STATISTICS,
+    EVICTION,
+    CLOSE,
+    PERSISTENCE,
+    PAGED_CURRENT,
+    PAGED_ENSURE_LOADED,
+    PAGED_REFRESH,
+    PAGED_LOAD_NEXT,
+    PAGED_UPDATE,
+    PAGED_INVALIDATE,
+    PAGED_REMOVE,
+    PAGED_CLEAR,
+}
