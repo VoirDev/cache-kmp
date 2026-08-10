@@ -1,0 +1,14 @@
+.DS_Store
+.gradle/
+.gradle-user-home/
+.idea/
+.kotlin/
+**/build/
+local.properties
+
+# Kotlin/Native tooling
+.konan/
+
+# Xcode
+*.xcworkspace/
+DerivedData/

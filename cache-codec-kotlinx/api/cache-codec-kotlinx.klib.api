@@ -1,0 +1,23 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <dev.voir:cache-codec-kotlinx>
+abstract fun interface <#A: kotlin/Any> dev.voir.cache.codec.kotlinx/JsonPayloadMigration { // dev.voir.cache.codec.kotlinx/JsonPayloadMigration|null[0]
+    abstract fun decode(kotlinx.serialization.json/Json, kotlin/String): #A // dev.voir.cache.codec.kotlinx/JsonPayloadMigration.decode|decode(kotlinx.serialization.json.Json;kotlin.String){}[0]
+}
+
+final class <#A: kotlin/Any> dev.voir.cache.codec.kotlinx/KotlinxJsonCacheCodec : dev.voir.cache.core.codec/CacheCodec<#A> { // dev.voir.cache.codec.kotlinx/KotlinxJsonCacheCodec|null[0]
+    constructor <init>(kotlinx.serialization/KSerializer<#A>, kotlin/Int = ..., kotlinx.serialization.json/Json = ..., kotlin.collections/Map<kotlin/Int, dev.voir.cache.codec.kotlinx/JsonPayloadMigration<#A>> = ...) // dev.voir.cache.codec.kotlinx/KotlinxJsonCacheCodec.<init>|<init>(kotlinx.serialization.KSerializer<1:0>;kotlin.Int;kotlinx.serialization.json.Json;kotlin.collections.Map<kotlin.Int,dev.voir.cache.codec.kotlinx.JsonPayloadMigration<1:0>>){}[0]
+
+    final val currentVersion // dev.voir.cache.codec.kotlinx/KotlinxJsonCacheCodec.currentVersion|{}currentVersion[0]
+        final fun <get-currentVersion>(): kotlin/Int // dev.voir.cache.codec.kotlinx/KotlinxJsonCacheCodec.currentVersion.<get-currentVersion>|<get-currentVersion>(){}[0]
+
+    final fun decode(kotlin/ByteArray, kotlin/Int): #A // dev.voir.cache.codec.kotlinx/KotlinxJsonCacheCodec.decode|decode(kotlin.ByteArray;kotlin.Int){}[0]
+    final fun encode(#A): kotlin/ByteArray // dev.voir.cache.codec.kotlinx/KotlinxJsonCacheCodec.encode|encode(1:0){}[0]
+}
+
+final class dev.voir.cache.codec.kotlinx/CachePayloadCodecException : kotlin/IllegalArgumentException // dev.voir.cache.codec.kotlinx/CachePayloadCodecException|null[0]
