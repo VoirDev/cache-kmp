@@ -1,58 +1,61 @@
 # Testing
 
-Add the test utilities beside your normal test dependencies:
+Applications use the same public `cache-kmp` API in tests. There is no separate testing artifact or
+public storage fake.
+
+## Memory behavior
+
+Create a manager below a temporary JVM directory and count loader calls:
 
 ```kotlin
-commonTest.dependencies {
-    implementation("dev.voir:cache-testing:1.0.0")
-}
-```
-
-`MutableCacheClock` makes TTL boundaries deterministic:
-
-```kotlin
-val clock = MutableCacheClock(Instant.parse("2026-01-01T00:00:00Z"))
-val manager = createCacheManager(backgroundScope.coroutineContext, clock = clock)
-
-clock.advanceBy(5.minutes)
-assertEquals(CacheFreshness.STALE, resource.current(key).freshness)
-```
-
-`InMemoryPersistentCacheStore` exercises the same encoded SPI as Room without platform I/O. It
-supports seeded records, inspection, operation counters, all retention bounds, exact statistics,
-typed family invalidation/removal, and deterministic failure flags:
-
-```kotlin
-@OptIn(ExperimentalCacheStoreApi::class)
 @Test
-fun `disk failure falls back to source`() = runTest {
-    val store = InMemoryPersistentCacheStore().apply { failReads = true }
-    val manager = createCacheManager(backgroundScope.coroutineContext, store)
+fun `fresh value loads once`() = runTest {
+    val root = createTempDirectory("cache-test-")
+    val cache = CacheManager(root, this)
+    try {
+        var loads = 0
+        val options = CacheOptions(namespace = "articles")
 
-    val result = resourceRegisteredOn(manager).get(key)
+        val first = cache.cache("one", options) { ++loads }
+        val second = cache.cache("one", options) { ++loads }
 
-    assertIs<CacheSuccess<Value>>(result)
-    manager.close()
+        assertEquals(1, first)
+        assertEquals(first, second)
+        assertEquals(1, loads)
+    } finally {
+        cache.close()
+        root.toFile().deleteRecursively()
+    }
 }
 ```
 
-Use Room integration tests for reopen behavior, schema migration, driver configuration, and exact
-metadata round trips. Use the fake store for race and failure tests. Test cancellation explicitly;
-never swallow `CancellationException` in a source or error mapper.
+Use `Duration.ZERO` for deterministic stale behavior without sleeps. `CacheRefresh.ALWAYS` is useful
+when a test must force the loader independently of wall-clock timing.
 
-Revision-race tests should assert `CacheDiscarded` directly and verify its `currentSnapshot` instead
-of checking observable state alone. This prevents a rejected source value from regressing to an
-ordinary `CacheSuccess` while the revision guard still happens to protect memory.
+## Persistent recreation
 
-Family contract tests should cover empty, one-entry, and multi-entry families; namespace and
-partition isolation; persistent reopen; and a late matching source result alongside an unrelated
-result that still commits.
+To verify persistence, close the first manager, create a second manager with the same root, and make
+the second loader fail the test. A fresh stored value must be returned without invoking it. Use
+`@Serializable` custom keys and values exactly as production code does.
 
-`ControllablePageSource` scripts typed page results and can pause exactly the next request. Use it
-to test append/refresh generation races and waiter cancellation without sleeps. Paged contracts
-should cover fresh reuse, ordered append, duplicate IDs, retryable append failure, empty/repeated
-cursor termination, finite bounds, whole-query LRU, and family/partition suppression.
+## Files
 
-Diagnostics tests should match operation pairs by `correlationId`, verify increasing `sequence`,
-and assert that event string representations do not contain fixture keys, partitions, payloads, or
-errors. `manager.statistics()` can be asserted without installing a listener.
+Stream known chunks into `cacheFile`, read `CachedFile.path`, and always close the lease. Recreate the
+manager with the same root to test durable file reuse. Configure small limits to cover oversized
+entries and capacity behavior; assert `CacheFileException.reason` rather than internal store types.
+
+## Failure and concurrency
+
+Public contract tests should cover:
+
+- stale fallback enabled and disabled;
+- direct and scoped expiration overrides;
+- forced refresh;
+- concurrent equal-key calls invoking one loader;
+- namespace configuration conflicts;
+- accumulated paging: appended pages, deduplicated overlaps, and a refresh discarding later pages;
+- `clearAll()` across memory, persistent values, accumulated pages, and files;
+- manager and file-lease idempotent close behavior.
+
+The repository's `samples/consumer` build is an external integration gate. It resolves the locally
+published artifact and contains memory-scope, persistent-recreation, and file-recreation examples.

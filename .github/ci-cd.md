@@ -12,8 +12,8 @@ Verification performs:
 - a clean build and every configured platform test;
 - committed Kotlin ABI comparison;
 - publication of every KMP variant to a workflow-local Maven repository;
-- external memory-only and persistent consumer builds from that Maven repository;
-- a dependency-isolation check proving the memory consumer has no Room or SQLite runtime artifact.
+- external memory, persistent-value, and file consumer builds from that Maven repository, each with
+  only the `dev.voir:cache` dependency.
 
 ## Release flow
 
@@ -26,8 +26,8 @@ Verification performs:
    exist.
 5. It rebuilds, tests, compares ABI, locally publishes the exact release version, and rebuilds the
    external consumers against that version.
-6. It publishes all modules to Maven Central, creates and pushes tag `vX.Y.Z`, and creates a GitHub
-   Release using the release pull request body.
+6. It publishes `dev.voir:cache` to Maven Central, creates and pushes tag `vX.Y.Z`, and creates a
+   GitHub Release using the release pull request body.
 
 For recovery or an initial release, run the same workflow with `publish-current` mode. This publishes
 the version already present on `main` and generates notes from merged pull requests. Maven Central is

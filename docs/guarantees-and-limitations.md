@@ -1,91 +1,83 @@
 # Guarantees and limitations
 
-## State and consistency
+## Values and freshness
 
-- A value is either absent, fresh, or stale. Hydration and refresh activity are mutually exclusive.
-- `observe` never invokes the source. Persistent observation may start or join lazy disk hydration;
-  concurrent observers share that work. `peek` performs only a process-local memory read, while
-  `current` awaits hydration without invoking the source.
-- `get` loads only for absent or stale data; `refresh` always requests source work.
-- Equal encoded addresses share one source flight. Unrelated addresses can load concurrently.
-- A stale value remains observable during refresh and after a source failure.
-- Mutations and clear operations advance revision guards. Results started before `put`, `update`,
-  exact/family invalidation, exact/family removal, namespace clear, partition clear, or global
-  clear cannot resurrect older state.
-- Family scope is an exact namespace, partition, and normalized family tuple stored as metadata.
-  It never depends on encoded-key prefixes or a consumer-maintained key registry.
-- Paged initial/refresh and append requests are single-flight per query. Append commit requires both
-  the current query generation and the expected cursor; refresh replaces accumulated pages atomically.
-- Paged query, page, per-query item, and whole-resource item limits are finite. Query LRU evicts
-  complete entries; item/page truncation is exposed through `boundary` and `isPartial`.
-- Source success creates one validation metadata instance for memory and persistence. Persistence is
-  hydration storage; memory is the live state for the current process.
-- Memory publication occurs before the best-effort persistent write finishes. Process death during
-  that interval can lose the newest cache copy; cache persistence is not an authoritative database.
-- Persistent retention is host-triggered and uses the injected cache clock. Expiration grace,
-  per-namespace rows, whole-store rows, and whole-store encoded-payload bytes are bounded in a
-  deterministic most-recent-first order.
-- `storageStatistics()` exposes only total and per-namespace occupancy. It never includes raw
-  partitions, encoded keys, payloads, or backend exceptions.
+- A request addresses exactly one serialized namespace, partition, and key.
+- `CacheRefresh.IF_NEEDED` returns a fresh value without invoking the loader.
+- `CacheRefresh.ALWAYS` invokes the loader even when a fresh value exists.
+- The effective expiration of each request is committed with its successful value or file.
+- Equal addresses share one in-flight loader. Different addresses may load concurrently.
+- A namespace has one key type, value type or file kind, storage mode, and set of stable limits
+  within a manager. Incompatible reuse fails immediately.
 
-## Failure behavior
+## Accumulated pages
 
-- Typed source failures return `CacheFailure`; when available, its stale value remains usable.
-- A source success or failure superseded by a newer revision returns `CacheDiscarded`. Only its
-  `currentSnapshot` is authoritative; a rejected source value is never presented as committed.
-- Unexpected source exceptions are converted only by the resource's `mapUnexpectedFailure` callback.
-- Persistent read, write, invalidation, removal, clear, and prune failures emit a sanitized
-  `PERSISTENT_STORE_FAILURE` diagnostic and leave the memory/source path usable.
-- Prune reports and storage snapshots distinguish `AVAILABLE`, `NOT_CONFIGURED`, and `UNAVAILABLE`
-  persistence without converting backend failures into application exceptions.
-- Family mutation results distinguish memory affected entries, persistent affected rows, and
-  `AVAILABLE`, `NOT_CONFIGURED`, or `UNAVAILABLE` persistence.
-- Malformed, oversized, or unsupported persistent payloads are evicted and treated as cache misses.
-- Diagnostic-listener failures are isolated from cache commands.
-- Structured start/completion events have manager-local correlation IDs and monotonic sequence
-  numbers. Delivery is serialized and never invokes consumer listener code under cache state locks.
-- `CacheStatisticsSnapshot` is reduced independently of listener configuration and uses stable
-  definitions for hits, misses, source outcomes, joins, evictions, and occupancy.
-- Invalid configuration, invalid encoded addresses, duplicate namespaces, use after close, and a
-  persistent spec without a manager store fail fast as programming errors.
+- Pages accumulated for one query are one logical value with one freshness.
+- Reloading the first page replaces the accumulation, because later cursors describe a window the
+  source has since changed.
+- Appended pages merge by the declared item identity, so overlapping pages cannot duplicate items.
+- Accumulation stops at `maxPages`, `maxItemsPerQuery`, `maxQueries`, or `maxTotalItems` and reports
+  which bound applied.
+- Accumulated pages are process memory only and are never restored from disk.
 
-## Cancellation and lifecycle
+## Failures and cancellation
 
-- `CancellationException` is never converted into a domain error.
-- Cancelling one waiter does not cancel shared source work needed by other callers.
-- Manager-owned work can outlive the last observer but cannot outlive `CacheManager.close()`.
-- Close is idempotent and concurrent: it rejects new commands, cancels active hydration/source work,
-  drains admitted commands, clears memory, closes persistence, and preserves the application parent
-  job. Cancellation of the initiating caller cannot abandon this sequence.
-- Persistent close failure is reported to every close caller after cleanup diagnostics are drained;
-  it never reopens the terminal manager.
-- `RestartableCacheManagerOwner` serializes suspending start/stop transitions and creates a fresh
-  manager for every new host lifecycle.
+- Loader exceptions are rethrown without being wrapped.
+- When a stale entry exists and `useStaleOnError` is enabled, a loader failure returns that entry.
+- Disabling stale fallback makes the loader failure observable to the caller.
+- Coroutine cancellation remains cancellation and is not converted into a cached result.
+- File capacity and storage failures use `CacheFileException` with a stable
+  `CacheFileFailureReason`.
+- A failed or superseded loader never commits its candidate as the winning cache entry.
+
+## Storage
+
+- Accumulated pages are bounded per namespace by `maxQueries` and `maxTotalItems`.
+- Memory storage is bounded per namespace by `maxMemoryEntries`, including the per-address
+  bookkeeping the manager keeps for evicted entries.
+- An address may exceed the bound only while an observer or an in-flight load holds it.
+- Persistent values are Kotlinx-serialized JSON with a per-entry encoded payload limit.
+- Persistent values and file metadata are stored internally with Room.
+- Files are streamed to filesystem staging and are not stored as database BLOBs.
+- File commits enforce per-entry, per-namespace entry, and per-namespace byte limits.
+- Whole-manager persistent and file caps are configured with `CacheManagerOptions`.
+- Startup recovery and pruning are internal and complete before manager creation returns.
+- Retention maintenance afterwards is rate limited and runs in the background, so it never delays
+  a cache request or repeats a whole-store scan on every call.
+- Stored values and files are cache data, not authoritative application records. A process or
+  storage failure may discard them.
+
+## Observation
+
+- `observe` supports direct and scoped memory or persistent values.
+- `observeFile` supports direct and scoped file caches and emits non-leased file metadata.
+- Observation emits current process-local state and never invokes an application loader.
+- Persistent collection starts or joins lazy disk hydration.
+- Cache operations, refresh activity, refresh failures, and clearing publish state changes to active
+  collectors for the same manager and address.
+- Observation does not monitor another manager, another process, or arbitrary database writes.
+- An active collector pins its address against normal in-memory LRU eviction until collection ends.
+
+## File leases
+
+- `CachedFile.path` is absolute and valid while its lease is open.
+- Active file generations are protected from eviction until `CachedFile.close()` completes.
+- Closing a lease is idempotent.
+- Capacity can reject a new file when active leases prevent sufficient eviction.
+- Media type is informational and must not be treated as trusted content validation.
 
 ## Security and privacy
 
-- Keys and partitions are application-controlled and must never contain secrets.
-- Diagnostics expose namespaces and a manager-salted one-way address fingerprint; raw keys,
-  partitions, family values, payloads, and exception causes are excluded.
-- Structured details likewise exclude loader values, typed error objects, caller identity, and
-  credentials; only sanitized enums, durations, and aggregate counts are exposed.
-- JSON and SQLite payloads are not encrypted by this library. Sensitive cached data requires
-  platform storage protection or application-level authenticated encryption.
-- Partition isolation depends on correct key encoding. Clear the prior identity's partition on
-  logout and use distinct namespaces when serialization or semantic contracts change.
-- Payload-size and address-length limits reduce accidental resource exhaustion but are not a trust
-  boundary for hostile storage or source input.
+- Serialized keys, values, SQLite data, and file content are not encrypted by this library.
+- Use platform storage protection or application-level encryption for sensitive cached content.
+- Do not put credentials or secrets in keys, namespaces, or partitions.
+- Partition isolation depends on the application assigning the correct partition.
+- `clearAll()` is the only public invalidation boundary and emits absent state to active
+  observers, including paged observers.
 
-## Limitations and non-goals
+## Non-goals
 
-- This is a whole-value cache indexed by namespace, partition, and key. It does not provide field
-  queries, joins, partial updates, conflict resolution, or authoritative offline records.
-- Accumulated paged resources are currently memory-only and are not restored after manager/process
-  recreation.
-- Persistence durability is best effort and is not a transaction with the remote source.
-- There is no hidden singleton, background scheduler, network policy, retry policy, or encryption.
-- Room retention recency is approximate because hydration does not write an access timestamp back
-  to disk. Counts and payload-byte statistics are exact; pruning order is deterministic for the
-  stored metadata.
-- One manager allows only one resource registration per namespace. Namespaces are durable schema
-  identities and should not be reused for incompatible value meanings.
+The library does not provide networking, retries, HTTP cache-header interpretation, background
+scheduling, authoritative offline records, database queries, image decoding, file transformation,
+resumable downloads, content deduplication, offset-based or bidirectional paging, durable paged
+state, or encryption.

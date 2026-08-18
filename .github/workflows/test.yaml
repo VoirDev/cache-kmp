@@ -46,7 +46,7 @@ jobs:
           publishAllPublicationsToLocalReleaseRepository
           --console=plain
 
-      - name: Verify published consumers and dependency isolation
+      - name: Verify published consumers
         run: >-
           ./gradlew
           --no-daemon

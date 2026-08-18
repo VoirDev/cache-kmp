@@ -1,6 +1,6 @@
-# Compatibility matrix
+# Compatibility
 
-The following matrix is the validated build baseline for `1.0.0`:
+The validated baseline for `1.0.0` is:
 
 | Surface | Validated version or target |
 | --- | --- |
@@ -16,21 +16,16 @@ The following matrix is the validated build baseline for `1.0.0`:
 | iOS simulator | `iosSimulatorArm64` |
 | JVM | Java 21 toolchain and bytecode target |
 
-`cache-core` and `cache-testing` do not expose Room or SQLite. `cache-room` uses the bundled SQLite
-driver for Android, JVM, and iOS production stores; the Android host smoke test uses the framework
-driver because host JVMs cannot load Android ABI libraries.
+`dev.voir:cache` is the only consumer artifact. Room and SQLite are internal runtime
+dependencies used for persistent values and file metadata; consumers do not configure their APIs.
 
-CI treats compilation, JVM/Android-host/iOS-simulator tests, ABI comparison, local Maven publication,
-published consumer tests, and memory dependency isolation as release gates. Other Kotlin, Gradle,
-JDK, Android, Apple, and dependency combinations are not guaranteed until added to this matrix.
+CI validates JVM and Android host tests, iOS simulator tests, iOS device compilation, Kotlin ABI,
+Dokka, every KMP publication variant, and three standalone consumers resolving the local Maven
+artifact. Other toolchain or platform combinations are not guaranteed until added to this matrix.
 
-## Version compatibility
+Custom keys, paged queries, and values require a Kotlinx serializer. Apply a Kotlin serialization plugin compatible
+with the Kotlin compiler used by the application.
 
-Stable releases follow Semantic Versioning. Starting with `1.0.0`, incompatible stable API or
-behavior changes require a major version, compatible features use a minor version, and fixes use a
-patch version. APIs marked with `ExperimentalCacheStoreApi` may change while storage adapters
-stabilize.
-
-Kotlin binary compatibility does not guarantee persistent-data compatibility. Applications must
-also version serialized payloads and apply any required Room schema migrations; see
-[Migrations](migrations.md).
+Kotlin binary compatibility and stored-data compatibility are separate. A serializable model can
+remain source-compatible while changing its durable JSON representation. See
+[Serialized-data changes](migrations.md).

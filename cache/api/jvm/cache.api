@@ -1,0 +1,427 @@
+public final class dev/voir/cache/CacheActivity : java/lang/Enum {
+	public static final field HYDRATING Ldev/voir/cache/CacheActivity;
+	public static final field IDLE Ldev/voir/cache/CacheActivity;
+	public static final field REFRESHING Ldev/voir/cache/CacheActivity;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Ldev/voir/cache/CacheActivity;
+	public static fun values ()[Ldev/voir/cache/CacheActivity;
+}
+
+public final class dev/voir/cache/CacheApiKt {
+	public static final fun cache (Ldev/voir/cache/CacheManager;Ldev/voir/cache/CacheScope;Ljava/lang/Object;Ldev/voir/cache/CacheOverrides;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun cache$default (Ldev/voir/cache/CacheManager;Ldev/voir/cache/CacheScope;Ljava/lang/Object;Ldev/voir/cache/CacheOverrides;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun cacheDirect (Ldev/voir/cache/CacheManager;Ljava/lang/Object;Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;Ldev/voir/cache/CacheOptions;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun cacheFile (Ldev/voir/cache/CacheManager;Ldev/voir/cache/CacheFileScope;Ljava/lang/Object;Ldev/voir/cache/CacheFileOverrides;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun cacheFile$default (Ldev/voir/cache/CacheManager;Ldev/voir/cache/CacheFileScope;Ljava/lang/Object;Ldev/voir/cache/CacheFileOverrides;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun cacheFileDirect (Ldev/voir/cache/CacheManager;Ljava/lang/Object;Lkotlinx/serialization/KSerializer;Ldev/voir/cache/CacheFileOptions;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class dev/voir/cache/CacheDuplicates : java/lang/Enum {
+	public static final field KEEP_EXISTING Ldev/voir/cache/CacheDuplicates;
+	public static final field REPLACE_EXISTING Ldev/voir/cache/CacheDuplicates;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Ldev/voir/cache/CacheDuplicates;
+	public static fun values ()[Ldev/voir/cache/CacheDuplicates;
+}
+
+public final class dev/voir/cache/CacheEntryMetadata {
+	public fun <init> (Lkotlin/time/Instant;Lkotlin/time/Instant;)V
+	public final fun component1 ()Lkotlin/time/Instant;
+	public final fun component2 ()Lkotlin/time/Instant;
+	public final fun copy (Lkotlin/time/Instant;Lkotlin/time/Instant;)Ldev/voir/cache/CacheEntryMetadata;
+	public static synthetic fun copy$default (Ldev/voir/cache/CacheEntryMetadata;Lkotlin/time/Instant;Lkotlin/time/Instant;ILjava/lang/Object;)Ldev/voir/cache/CacheEntryMetadata;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getExpiresAt ()Lkotlin/time/Instant;
+	public final fun getValidatedAt ()Lkotlin/time/Instant;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/voir/cache/CacheFileException : java/lang/IllegalStateException {
+	public fun <init> (Ldev/voir/cache/CacheFileFailureReason;)V
+	public final fun getReason ()Ldev/voir/cache/CacheFileFailureReason;
+}
+
+public final class dev/voir/cache/CacheFileFailureReason : java/lang/Enum {
+	public static final field CAPACITY_UNAVAILABLE Ldev/voir/cache/CacheFileFailureReason;
+	public static final field ENTRY_TOO_LARGE Ldev/voir/cache/CacheFileFailureReason;
+	public static final field STORAGE_UNAVAILABLE Ldev/voir/cache/CacheFileFailureReason;
+	public static final field SUPERSEDED Ldev/voir/cache/CacheFileFailureReason;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Ldev/voir/cache/CacheFileFailureReason;
+	public static fun values ()[Ldev/voir/cache/CacheFileFailureReason;
+}
+
+public final class dev/voir/cache/CacheFileOptions {
+	public synthetic fun <init> (Ljava/lang/String;JJIJLjava/lang/String;Ldev/voir/cache/CacheRefresh;ZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;JJIJLjava/lang/String;Ldev/voir/cache/CacheRefresh;ZLjava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2-UwyO8pc ()J
+	public final fun component3 ()J
+	public final fun component4 ()I
+	public final fun component5 ()J
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ldev/voir/cache/CacheRefresh;
+	public final fun component8 ()Z
+	public final fun component9 ()Ljava/lang/String;
+	public final fun copy-LFamP3s (Ljava/lang/String;JJIJLjava/lang/String;Ldev/voir/cache/CacheRefresh;ZLjava/lang/String;)Ldev/voir/cache/CacheFileOptions;
+	public static synthetic fun copy-LFamP3s$default (Ldev/voir/cache/CacheFileOptions;Ljava/lang/String;JJIJLjava/lang/String;Ldev/voir/cache/CacheRefresh;ZLjava/lang/String;ILjava/lang/Object;)Ldev/voir/cache/CacheFileOptions;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getExpiresAfter-UwyO8pc ()J
+	public final fun getMaxBytes ()J
+	public final fun getMaxEntries ()I
+	public final fun getMaxEntryBytes ()J
+	public final fun getMediaType ()Ljava/lang/String;
+	public final fun getNamespace ()Ljava/lang/String;
+	public final fun getPartition ()Ljava/lang/String;
+	public final fun getRefresh ()Ldev/voir/cache/CacheRefresh;
+	public final fun getUseStaleOnError ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/voir/cache/CacheFileOverrides {
+	public synthetic fun <init> (Lkotlin/time/Duration;Ldev/voir/cache/CacheRefresh;Ljava/lang/Boolean;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlin/time/Duration;Ldev/voir/cache/CacheRefresh;Ljava/lang/Boolean;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-FghU774 ()Lkotlin/time/Duration;
+	public final fun component2 ()Ldev/voir/cache/CacheRefresh;
+	public final fun component3 ()Ljava/lang/Boolean;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy-5EIzBIU (Lkotlin/time/Duration;Ldev/voir/cache/CacheRefresh;Ljava/lang/Boolean;Ljava/lang/String;)Ldev/voir/cache/CacheFileOverrides;
+	public static synthetic fun copy-5EIzBIU$default (Ldev/voir/cache/CacheFileOverrides;Lkotlin/time/Duration;Ldev/voir/cache/CacheRefresh;Ljava/lang/Boolean;Ljava/lang/String;ILjava/lang/Object;)Ldev/voir/cache/CacheFileOverrides;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getExpiresAfter-FghU774 ()Lkotlin/time/Duration;
+	public final fun getMediaType ()Ljava/lang/String;
+	public final fun getRefresh ()Ldev/voir/cache/CacheRefresh;
+	public final fun getUseStaleOnError ()Ljava/lang/Boolean;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/voir/cache/CacheFileScope {
+	public final fun getName ()Ljava/lang/String;
+}
+
+public final class dev/voir/cache/CacheFileScopeBuilder {
+	public final fun getExpiresAfter-UwyO8pc ()J
+	public final fun getMaxBytes ()J
+	public final fun getMaxEntries ()I
+	public final fun getMaxEntryBytes ()J
+	public final fun getMediaType ()Ljava/lang/String;
+	public final fun getPartition ()Ljava/lang/String;
+	public final fun getRefresh ()Ldev/voir/cache/CacheRefresh;
+	public final fun getUseStaleOnError ()Z
+	public final fun partitionBy (Lkotlin/jvm/functions/Function1;)V
+	public final fun setExpiresAfter-LRDsOJo (J)V
+	public final fun setMaxBytes (J)V
+	public final fun setMaxEntries (I)V
+	public final fun setMaxEntryBytes (J)V
+	public final fun setMediaType (Ljava/lang/String;)V
+	public final fun setPartition (Ljava/lang/String;)V
+	public final fun setRefresh (Ldev/voir/cache/CacheRefresh;)V
+	public final fun setUseStaleOnError (Z)V
+}
+
+public final class dev/voir/cache/CacheFileScopeKt {
+	public static final fun createCacheFileScope (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlinx/serialization/KSerializer;)Ldev/voir/cache/CacheFileScope;
+}
+
+public abstract interface class dev/voir/cache/CacheFileSink {
+	public abstract fun getBytesWritten ()J
+	public abstract fun write ([BIILkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun write ([BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class dev/voir/cache/CacheFileSink$DefaultImpls {
+	public static fun write (Ldev/voir/cache/CacheFileSink;[BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class dev/voir/cache/CacheFreshness : java/lang/Enum {
+	public static final field ABSENT Ldev/voir/cache/CacheFreshness;
+	public static final field FRESH Ldev/voir/cache/CacheFreshness;
+	public static final field STALE Ldev/voir/cache/CacheFreshness;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Ldev/voir/cache/CacheFreshness;
+	public static fun values ()[Ldev/voir/cache/CacheFreshness;
+}
+
+public final class dev/voir/cache/CacheManager {
+	public final fun clearAll (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun close (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class dev/voir/cache/CacheManagerOptions {
+	public fun <init> ()V
+	public fun <init> (IJIJ)V
+	public synthetic fun <init> (IJIJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()J
+	public final fun component3 ()I
+	public final fun component4 ()J
+	public final fun copy (IJIJ)Ldev/voir/cache/CacheManagerOptions;
+	public static synthetic fun copy$default (Ldev/voir/cache/CacheManagerOptions;IJIJILjava/lang/Object;)Ldev/voir/cache/CacheManagerOptions;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFileMaxBytes ()J
+	public final fun getFileMaxEntries ()I
+	public final fun getPersistentMaxBytes ()J
+	public final fun getPersistentMaxEntries ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/voir/cache/CacheObservationApiKt {
+	public static final fun observe (Ldev/voir/cache/CacheManager;Ldev/voir/cache/CacheScope;Ljava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun observeDirect (Ldev/voir/cache/CacheManager;Ljava/lang/Object;Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;Ldev/voir/cache/CacheOptions;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun observeFile (Ldev/voir/cache/CacheManager;Ldev/voir/cache/CacheFileScope;Ljava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun observeFileDirect (Ldev/voir/cache/CacheManager;Ljava/lang/Object;Lkotlinx/serialization/KSerializer;Ldev/voir/cache/CacheFileOptions;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class dev/voir/cache/CacheOptions {
+	public synthetic fun <init> (Ljava/lang/String;Ldev/voir/cache/CacheStorage;JIILjava/lang/String;Ldev/voir/cache/CacheRefresh;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Ldev/voir/cache/CacheStorage;JIILjava/lang/String;Ldev/voir/cache/CacheRefresh;ZLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ldev/voir/cache/CacheStorage;
+	public final fun component3-UwyO8pc ()J
+	public final fun component4 ()I
+	public final fun component5 ()I
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ldev/voir/cache/CacheRefresh;
+	public final fun component8 ()Z
+	public final fun copy-KVH2U2I (Ljava/lang/String;Ldev/voir/cache/CacheStorage;JIILjava/lang/String;Ldev/voir/cache/CacheRefresh;Z)Ldev/voir/cache/CacheOptions;
+	public static synthetic fun copy-KVH2U2I$default (Ldev/voir/cache/CacheOptions;Ljava/lang/String;Ldev/voir/cache/CacheStorage;JIILjava/lang/String;Ldev/voir/cache/CacheRefresh;ZILjava/lang/Object;)Ldev/voir/cache/CacheOptions;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getExpiresAfter-UwyO8pc ()J
+	public final fun getMaxMemoryEntries ()I
+	public final fun getMaxPayloadBytes ()I
+	public final fun getNamespace ()Ljava/lang/String;
+	public final fun getPartition ()Ljava/lang/String;
+	public final fun getRefresh ()Ldev/voir/cache/CacheRefresh;
+	public final fun getStorage ()Ldev/voir/cache/CacheStorage;
+	public final fun getUseStaleOnError ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/voir/cache/CacheOverrides {
+	public synthetic fun <init> (Lkotlin/time/Duration;Ldev/voir/cache/CacheRefresh;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlin/time/Duration;Ldev/voir/cache/CacheRefresh;Ljava/lang/Boolean;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-FghU774 ()Lkotlin/time/Duration;
+	public final fun component2 ()Ldev/voir/cache/CacheRefresh;
+	public final fun component3 ()Ljava/lang/Boolean;
+	public final fun copy-k1IrOU0 (Lkotlin/time/Duration;Ldev/voir/cache/CacheRefresh;Ljava/lang/Boolean;)Ldev/voir/cache/CacheOverrides;
+	public static synthetic fun copy-k1IrOU0$default (Ldev/voir/cache/CacheOverrides;Lkotlin/time/Duration;Ldev/voir/cache/CacheRefresh;Ljava/lang/Boolean;ILjava/lang/Object;)Ldev/voir/cache/CacheOverrides;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getExpiresAfter-FghU774 ()Lkotlin/time/Duration;
+	public final fun getRefresh ()Ldev/voir/cache/CacheRefresh;
+	public final fun getUseStaleOnError ()Ljava/lang/Boolean;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/voir/cache/CachePage {
+	public fun <init> (Ljava/util/List;Ljava/lang/Object;Ljava/lang/Integer;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Object;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3 ()Ljava/lang/Integer;
+	public final fun copy (Ljava/util/List;Ljava/lang/Object;Ljava/lang/Integer;)Ldev/voir/cache/CachePage;
+	public static synthetic fun copy$default (Ldev/voir/cache/CachePage;Ljava/util/List;Ljava/lang/Object;Ljava/lang/Integer;ILjava/lang/Object;)Ldev/voir/cache/CachePage;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getItems ()Ljava/util/List;
+	public final fun getNextCursor ()Ljava/lang/Object;
+	public final fun getTotalCount ()Ljava/lang/Integer;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/voir/cache/CachePageActivity : java/lang/Enum {
+	public static final field APPENDING Ldev/voir/cache/CachePageActivity;
+	public static final field IDLE Ldev/voir/cache/CachePageActivity;
+	public static final field LOADING Ldev/voir/cache/CachePageActivity;
+	public static final field REFRESHING Ldev/voir/cache/CachePageActivity;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Ldev/voir/cache/CachePageActivity;
+	public static fun values ()[Ldev/voir/cache/CachePageActivity;
+}
+
+public final class dev/voir/cache/CachePageBoundary : java/lang/Enum {
+	public static final field EMPTY_PAGE Ldev/voir/cache/CachePageBoundary;
+	public static final field MAX_ITEMS_PER_QUERY Ldev/voir/cache/CachePageBoundary;
+	public static final field MAX_PAGES Ldev/voir/cache/CachePageBoundary;
+	public static final field MAX_TOTAL_ITEMS Ldev/voir/cache/CachePageBoundary;
+	public static final field REPEATED_CURSOR Ldev/voir/cache/CachePageBoundary;
+	public static final field SOURCE_END Ldev/voir/cache/CachePageBoundary;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Ldev/voir/cache/CachePageBoundary;
+	public static fun values ()[Ldev/voir/cache/CachePageBoundary;
+}
+
+public final class dev/voir/cache/CachePagedApiKt {
+	public static final fun cachePages (Ldev/voir/cache/CacheManager;Ldev/voir/cache/CachePagedScope;Ljava/lang/Object;Ldev/voir/cache/CachePages;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun cachePages$default (Ldev/voir/cache/CacheManager;Ldev/voir/cache/CachePagedScope;Ljava/lang/Object;Ldev/voir/cache/CachePages;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun observePages (Ldev/voir/cache/CacheManager;Ldev/voir/cache/CachePagedScope;Ljava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class dev/voir/cache/CachePagedScope {
+	public final fun getName ()Ljava/lang/String;
+}
+
+public final class dev/voir/cache/CachePagedScopeBuilder {
+	public final fun getDuplicates ()Ldev/voir/cache/CacheDuplicates;
+	public final fun getExpiresAfter-UwyO8pc ()J
+	public final fun getMaxItemsPerQuery ()I
+	public final fun getMaxPages ()I
+	public final fun getMaxQueries ()I
+	public final fun getMaxTotalItems ()I
+	public final fun getUseStaleOnError ()Z
+	public final fun identifyBy (Lkotlin/jvm/functions/Function1;)V
+	public final fun partition (Ljava/lang/String;)V
+	public final fun partitionBy (Lkotlin/jvm/functions/Function1;)V
+	public final fun setDuplicates (Ldev/voir/cache/CacheDuplicates;)V
+	public final fun setExpiresAfter-LRDsOJo (J)V
+	public final fun setMaxItemsPerQuery (I)V
+	public final fun setMaxPages (I)V
+	public final fun setMaxQueries (I)V
+	public final fun setMaxTotalItems (I)V
+	public final fun setUseStaleOnError (Z)V
+}
+
+public final class dev/voir/cache/CachePagedScopeKt {
+	public static final fun createCachePagedScope (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlinx/serialization/KSerializer;)Ldev/voir/cache/CachePagedScope;
+}
+
+public final class dev/voir/cache/CachePagedState {
+	public fun <init> ()V
+	public fun <init> (Ljava/util/List;Ljava/lang/Object;Ljava/lang/Integer;ILdev/voir/cache/CacheFreshness;Ldev/voir/cache/CachePageActivity;Ldev/voir/cache/CacheEntryMetadata;Ljava/lang/Throwable;Ljava/lang/Throwable;Ldev/voir/cache/CachePageBoundary;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Object;Ljava/lang/Integer;ILdev/voir/cache/CacheFreshness;Ldev/voir/cache/CachePageActivity;Ldev/voir/cache/CacheEntryMetadata;Ljava/lang/Throwable;Ljava/lang/Throwable;Ldev/voir/cache/CachePageBoundary;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component10 ()Ldev/voir/cache/CachePageBoundary;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3 ()Ljava/lang/Integer;
+	public final fun component4 ()I
+	public final fun component5 ()Ldev/voir/cache/CacheFreshness;
+	public final fun component6 ()Ldev/voir/cache/CachePageActivity;
+	public final fun component7 ()Ldev/voir/cache/CacheEntryMetadata;
+	public final fun component8 ()Ljava/lang/Throwable;
+	public final fun component9 ()Ljava/lang/Throwable;
+	public final fun copy (Ljava/util/List;Ljava/lang/Object;Ljava/lang/Integer;ILdev/voir/cache/CacheFreshness;Ldev/voir/cache/CachePageActivity;Ldev/voir/cache/CacheEntryMetadata;Ljava/lang/Throwable;Ljava/lang/Throwable;Ldev/voir/cache/CachePageBoundary;)Ldev/voir/cache/CachePagedState;
+	public static synthetic fun copy$default (Ldev/voir/cache/CachePagedState;Ljava/util/List;Ljava/lang/Object;Ljava/lang/Integer;ILdev/voir/cache/CacheFreshness;Ldev/voir/cache/CachePageActivity;Ldev/voir/cache/CacheEntryMetadata;Ljava/lang/Throwable;Ljava/lang/Throwable;Ldev/voir/cache/CachePageBoundary;ILjava/lang/Object;)Ldev/voir/cache/CachePagedState;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getActivity ()Ldev/voir/cache/CachePageActivity;
+	public final fun getAppendError ()Ljava/lang/Throwable;
+	public final fun getBoundary ()Ldev/voir/cache/CachePageBoundary;
+	public final fun getCanLoadNext ()Z
+	public final fun getFreshness ()Ldev/voir/cache/CacheFreshness;
+	public final fun getHasItems ()Z
+	public final fun getItems ()Ljava/util/List;
+	public final fun getMetadata ()Ldev/voir/cache/CacheEntryMetadata;
+	public final fun getNextCursor ()Ljava/lang/Object;
+	public final fun getPageCount ()I
+	public final fun getRefreshError ()Ljava/lang/Throwable;
+	public final fun getTotalCount ()Ljava/lang/Integer;
+	public fun hashCode ()I
+	public final fun isLoading ()Z
+	public final fun isStale ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/voir/cache/CachePages : java/lang/Enum {
+	public static final field IF_NEEDED Ldev/voir/cache/CachePages;
+	public static final field NEXT Ldev/voir/cache/CachePages;
+	public static final field REFRESH Ldev/voir/cache/CachePages;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Ldev/voir/cache/CachePages;
+	public static fun values ()[Ldev/voir/cache/CachePages;
+}
+
+public final class dev/voir/cache/CacheRefresh : java/lang/Enum {
+	public static final field ALWAYS Ldev/voir/cache/CacheRefresh;
+	public static final field IF_NEEDED Ldev/voir/cache/CacheRefresh;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Ldev/voir/cache/CacheRefresh;
+	public static fun values ()[Ldev/voir/cache/CacheRefresh;
+}
+
+public final class dev/voir/cache/CacheScope {
+	public final fun getName ()Ljava/lang/String;
+}
+
+public final class dev/voir/cache/CacheScopeBuilder {
+	public final fun getExpiresAfter-UwyO8pc ()J
+	public final fun getMaxMemoryEntries ()I
+	public final fun getMaxPayloadBytes ()I
+	public final fun getPartition ()Ljava/lang/String;
+	public final fun getRefresh ()Ldev/voir/cache/CacheRefresh;
+	public final fun getStorage ()Ldev/voir/cache/CacheStorage;
+	public final fun getUseStaleOnError ()Z
+	public final fun partitionBy (Lkotlin/jvm/functions/Function1;)V
+	public final fun setExpiresAfter-LRDsOJo (J)V
+	public final fun setMaxMemoryEntries (I)V
+	public final fun setMaxPayloadBytes (I)V
+	public final fun setPartition (Ljava/lang/String;)V
+	public final fun setRefresh (Ldev/voir/cache/CacheRefresh;)V
+	public final fun setStorage (Ldev/voir/cache/CacheStorage;)V
+	public final fun setUseStaleOnError (Z)V
+}
+
+public final class dev/voir/cache/CacheScopeKt {
+	public static final fun createCacheScope (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;)Ldev/voir/cache/CacheScope;
+}
+
+public final class dev/voir/cache/CacheState {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Object;Ldev/voir/cache/CacheFreshness;Ldev/voir/cache/CacheActivity;Ldev/voir/cache/CacheEntryMetadata;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/Object;Ldev/voir/cache/CacheFreshness;Ldev/voir/cache/CacheActivity;Ldev/voir/cache/CacheEntryMetadata;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()Ldev/voir/cache/CacheFreshness;
+	public final fun component3 ()Ldev/voir/cache/CacheActivity;
+	public final fun component4 ()Ldev/voir/cache/CacheEntryMetadata;
+	public final fun component5 ()Ljava/lang/Throwable;
+	public final fun copy (Ljava/lang/Object;Ldev/voir/cache/CacheFreshness;Ldev/voir/cache/CacheActivity;Ldev/voir/cache/CacheEntryMetadata;Ljava/lang/Throwable;)Ldev/voir/cache/CacheState;
+	public static synthetic fun copy$default (Ldev/voir/cache/CacheState;Ljava/lang/Object;Ldev/voir/cache/CacheFreshness;Ldev/voir/cache/CacheActivity;Ldev/voir/cache/CacheEntryMetadata;Ljava/lang/Throwable;ILjava/lang/Object;)Ldev/voir/cache/CacheState;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getActivity ()Ldev/voir/cache/CacheActivity;
+	public final fun getFreshness ()Ldev/voir/cache/CacheFreshness;
+	public final fun getHasValue ()Z
+	public final fun getMetadata ()Ldev/voir/cache/CacheEntryMetadata;
+	public final fun getRefreshError ()Ljava/lang/Throwable;
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public final fun isLoading ()Z
+	public final fun isStale ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/voir/cache/CacheStorage : java/lang/Enum {
+	public static final field MEMORY Ldev/voir/cache/CacheStorage;
+	public static final field PERSISTENT Ldev/voir/cache/CacheStorage;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Ldev/voir/cache/CacheStorage;
+	public static fun values ()[Ldev/voir/cache/CacheStorage;
+}
+
+public final class dev/voir/cache/CachedFile {
+	public final fun close (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getMediaType ()Ljava/lang/String;
+	public final fun getPath ()Ljava/lang/String;
+	public final fun getSizeBytes ()J
+}
+
+public final class dev/voir/cache/CachedFileInfo {
+	public fun <init> (JLjava/lang/String;)V
+	public final fun component1 ()J
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (JLjava/lang/String;)Ldev/voir/cache/CachedFileInfo;
+	public static synthetic fun copy$default (Ldev/voir/cache/CachedFileInfo;JLjava/lang/String;ILjava/lang/Object;)Ldev/voir/cache/CachedFileInfo;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMediaType ()Ljava/lang/String;
+	public final fun getSizeBytes ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/voir/cache/JvmCacheManagerKt {
+	public static final fun CacheManager (Ljava/nio/file/Path;Lkotlinx/coroutines/CoroutineScope;Ldev/voir/cache/CacheManagerOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun CacheManager$default (Ljava/nio/file/Path;Lkotlinx/coroutines/CoroutineScope;Ldev/voir/cache/CacheManagerOptions;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+

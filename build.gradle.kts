@@ -2,6 +2,7 @@ import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import org.gradle.api.publish.PublishingExtension
 
 plugins {
+    base
     alias(libs.plugins.androidMultiplatformLibrary) apply false
     alias(libs.plugins.dokka) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
@@ -22,12 +23,8 @@ val isMavenCentralPublication = gradle.startParameter.taskNames.any { taskName -
     taskName.contains("MavenCentral", ignoreCase = true)
 }
 
-val moduleDescriptions = mapOf(
-    "cache-core" to "Typed Kotlin Multiplatform cache contracts, engine, and bounded memory tier.",
-    "cache-room" to "Room-backed persistent storage for cache-kmp.",
-    "cache-codec-kotlinx" to "Kotlinx.serialization JSON payload codec for cache-kmp.",
-    "cache-testing" to "Deterministic test clocks and persistent-store fakes for cache-kmp.",
-)
+val libraryDescription =
+    "One Kotlin Multiplatform cache for memory, persistent values, and streamed files."
 
 subprojects {
     pluginManager.apply("org.jetbrains.dokka")
@@ -41,13 +38,13 @@ subprojects {
 
             coordinates(
                 groupId = rootProject.group.toString(),
-                artifactId = project.name,
+                artifactId = "cache",
                 version = rootProject.version.toString(),
             )
 
             pom {
-                name.set("cache-kmp ${project.name}")
-                description.set(moduleDescriptions.getValue(project.name))
+                name.set("cache-kmp")
+                description.set(libraryDescription)
                 inceptionYear.set("2026")
                 url.set("https://github.com/VoirDev/cache-kmp/")
 

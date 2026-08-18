@@ -1,201 +1,237 @@
 # Getting started
 
-## Dependencies
+## 1. Add the single dependency
 
-Choose only the artifacts your application needs. In a Kotlin Multiplatform source set:
+Apply Kotlin serialization and add `cache-kmp` to `commonMain`:
 
 ```kotlin
-commonMain.dependencies {
-    implementation("dev.voir:cache-core:1.0.0")
+plugins {
+    kotlin("multiplatform")
+    kotlin("plugin.serialization")
+}
 
-    // Add these only for encoded Room persistence.
-    implementation("dev.voir:cache-room:1.0.0")
-    implementation("dev.voir:cache-codec-kotlinx:1.0.0")
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("dev.voir:cache:1.0.0")
+        }
+    }
 }
 ```
 
-`cache-core` has no Room or SQLite dependency. `cache-testing` is intended for test source sets.
+There are no separate memory, Room, codec, file, or testing artifacts.
 
-## Memory-only resource
+## 2. Make cache types serializable
 
-The domain owns its key, value, errors, source loader, and stable address encoding. It can register
-a resource directly without an application-specific cache facade:
+Every custom key and cached value uses Kotlinx serialization:
 
 ```kotlin
-data class ArticleKey(val accountId: String, val slug: String)
-data class Article(val title: String)
+@Serializable
+data class ArticleKey(
+    val accountId: String,
+    val slug: String,
+)
 
-val manager = createCacheManager(applicationScope.coroutineContext)
-val articles = manager.resource(
-    spec = cacheSpec<ArticleKey, Article>(
-        namespace = "articles.v1",
-        key = CacheKeyEncoder { key ->
-            EncodedCacheKey(CachePartition(key.accountId), key.slug)
-        },
-        freshness = ExpireAfter(5.minutes),
-        storage = memoryOnly(),
-        memory = MemoryPolicy(maxEntries = 100),
-    ),
-    fetch = { key -> api.loadArticle(key).toFetchResult() },
-    mapUnexpectedFailure = ::mapDomainError,
+@Serializable
+data class Article(
+    val title: String,
+    val body: String,
 )
 ```
 
-Use `get` for fresh-or-load semantics and `refresh` to force the source. `observe` never invokes the
-source, but collection of a persistent resource starts or joins lazy disk hydration. Use `current`
-to await hydration without source loading, or `peek` for a process-local memory snapshot that does
-not start or await disk work.
+The serialized key is part of durable cache identity. Keep its meaning and encoding stable for a
+given namespace.
 
-## Persistent resource
+## 3. Create the manager in platform code
 
-Create one platform store and pass ownership to the manager:
+Creation is suspending and performs internal database/file initialization, recovery, and initial
+pruning.
 
 ```kotlin
-// JVM
-val store = createJvmRoomPersistentCacheStore(databasePath)
-
 // Android
-val store = createAndroidRoomPersistentCacheStore(applicationContext, "cache.db")
+val cache = CacheManager(applicationContext, applicationScope)
+
+// JVM
+val cache = CacheManager(cacheRoot.toAbsolutePath(), applicationScope)
 
 // iOS
-val store = createIosRoomPersistentCacheStore(absoluteDatabasePath)
+val cache = CacheManager(applicationScope)
 ```
 
-Register a serializable value with an explicit codec and payload version:
+Use `CacheManagerOptions` only for whole-manager safety caps:
 
 ```kotlin
-val manager = createCacheManager(
-    coroutineContext = applicationScope.coroutineContext,
-    persistentStore = store,
-    config = CacheManagerConfig(
-        persistentRetention = PersistentRetentionPolicy(
-            expiredEntryGrace = 1.days,
-            maxEntriesPerNamespace = 1_000,
-            maxTotalEntries = 10_000,
-            maxTotalPayloadBytes = 50L * 1024 * 1024,
-        ),
-    ),
-)
-val profiles = manager.resource(
-    spec = cacheSpec<ProfileKey, Profile>(
-        namespace = "profiles.v1",
-        key = profileKeyEncoder,
-        freshness = ExpireAfter(30.minutes),
-        storage = persistent(
-            codec = KotlinxJsonCacheCodec(Profile.serializer(), currentVersion = 1),
-        ),
-        memory = MemoryPolicy(maxEntries = 100),
-    ),
-    fetch = { key -> api.loadProfile(key).toFetchResult() },
-    mapUnexpectedFailure = ::mapDomainError,
+val options = CacheManagerOptions(
+    persistentMaxEntries = 10_000,
+    persistentMaxBytes = 256L * 1_024 * 1_024,
+    fileMaxEntries = 2_000,
+    fileMaxBytes = 512L * 1_024 * 1_024,
 )
 ```
 
-Hydration is lazy. The first `observe`, `current`, `get`, or `refresh` checks Room. Observation and
-`current` never invoke the source; `get` calls it only when the hydrated value is absent or stale.
-`peek` remains memory-only and can therefore report absence before hydration.
+The JVM root must be absolute, application-owned, and not a filesystem root. The manager owns only
+its `cache-kmp` child. Android resolves application-private storage from the supplied context. iOS
+uses the application caches directory.
 
-## Invalidation and clearing
+## 4. Choose direct calls or scopes
 
-```kotlin
-profiles.invalidate(key)                    // Keep the value but mark it stale.
-profiles.remove(key)                        // Remove exactly one address.
-profiles.clear()                            // Clear the profiles namespace.
-manager.clear(CachePartition(accountId))    // Clear one account across namespaces.
-manager.clearAll()                          // Clear everything owned by the manager.
-val report = manager.prune()                // Apply configured retention.
-val occupancy = manager.storageStatistics() // Sanitized rows/bytes by namespace.
-val metrics = manager.statistics()           // Hits, outcomes, joins, evictions, and memory.
-```
-
-Use a partition for every tenant, account, session, or environment boundary. Clear the old
-partition during logout or account switching before allowing the new session to read cached data.
-
-Persistent retention limits are enforced only when the host calls `prune()`. The library does not
-invent a startup, foreground, or background schedule. `prune(explicitPolicy)` can run a one-shot
-policy without changing manager defaults. Reports use `CachePersistenceStatus` to distinguish a
-successful backend, a memory-only manager, and a degraded persistent operation.
-
-## Typed family operations
-
-Use `familyCacheSpec` when several exact keys must be invalidated or removed together. The family
-type stays at the domain boundary; only normalized partition and family metadata enter the cache:
+Use a direct call when policy is local:
 
 ```kotlin
-data class DetailKey(val accountId: String, val commandId: String)
-data class AccountFamily(val accountId: String)
-
-val details = manager.resource(
-    spec = familyCacheSpec<DetailKey, AccountFamily, Detail>(
-        namespace = "command-details.v1",
-        key = { key -> EncodedCacheKey(CachePartition(key.accountId), key.commandId) },
-        familyOf = { key -> AccountFamily(key.accountId) },
-        family = { value ->
-            EncodedCacheFamily(CachePartition(value.accountId), "command-details")
-        },
-        freshness = ExpireAfter(5.minutes),
-        storage = persistent(detailCodec),
-        memory = MemoryPolicy(maxEntries = 200),
+val article = cache.cache(
+    key = ArticleKey(accountId, slug),
+    options = CacheOptions(
+        namespace = "articles",
+        partition = accountId,
+        expiresAfter = 5.minutes,
     ),
-    fetch = { key -> api.loadDetail(key).toFetchResult() },
-    mapUnexpectedFailure = ::mapDomainError,
-)
-
-val invalidated = details.invalidateFamily(AccountFamily(accountId))
-val removed = details.removeFamily(AccountFamily(accountId))
+) {
+    api.loadArticle(slug)
+}
 ```
 
-Scope is exactly one resource namespace, one partition, and one encoded family. The result reports
-memory entries, persistent rows when known, and persistence availability. Older hydration/source
-work for matching addresses cannot commit; unrelated families and partitions continue normally.
-
-## Accumulated paged resource
-
-Use `pagedCacheSpec` for cursor or numeric-page protocols that need coherent accumulated query
-state. The source receives both the typed query and the current cursor:
+Use a scope when several calls share identity and policy:
 
 ```kotlin
-val feed = manager.pagedResource(
-    spec = pagedCacheSpec<FeedQuery, String, FeedItem, String>(
-        namespace = "feed.v1",
-        query = { query -> EncodedCacheKey(CachePartition(query.accountId), query.filter) },
-        itemId = FeedItem::id,
-        duplicatePolicy = PagedDuplicatePolicy.REPLACE_EXISTING,
-        freshness = ExpireAfter(5.minutes),
-        memory = PagedMemoryPolicy(
-            maxQueries = 8,
-            maxPagesPerQuery = 10,
-            maxItemsPerQuery = 250,
-            maxTotalItems = 1_000,
-        ),
-    ),
-    fetch = { request -> api.page(request.query, request.cursor).toFetchResult() },
-    mapUnexpectedFailure = ::mapDomainError,
-)
+val articles = cacheScope<ArticleKey, Article>("articles") {
+    expiresAfter = 5.minutes
+    maxMemoryEntries = 100
+    partitionBy { it.accountId }
+}
 
-feed.observe(query)
-feed.ensureLoaded(query) // Fresh reuse or one initial/stale source flight.
-feed.loadNext(query)     // One shared request for the committed next cursor.
-feed.refresh(query)      // Retains old items, then atomically replaces them on success.
+val article = cache.cache(articles, ArticleKey(accountId, slug)) {
+    api.loadArticle(slug)
+}
 ```
 
-`PagedCacheSnapshot` separates initial, refresh, and append errors. `boundary` explains source end,
-empty/repeated cursor, or retention truncation; `isPartial` is true when a finite limit stopped
-accumulation before source end. Query entries are evicted whole using LRU. Current paged storage is
-memory-only; manager recreation intentionally starts a new paged session.
+Memory is the default storage. Set `storage = CacheStorage.PERSISTENT` to restore serialized values
+after manager or process recreation:
 
-An optional `CacheEventListener` receives ordered start/completion pairs outside cache state locks.
-See [diagnostics and operation statistics](diagnostics.md) for correlation, timing, metrics, and
-privacy contracts.
+```kotlin
+val profiles = cacheScope<ProfileKey, Profile>("profiles") {
+    storage = CacheStorage.PERSISTENT
+    expiresAfter = 30.minutes
+    maxMemoryEntries = 100
+    maxPayloadBytes = 1_048_576
+    partitionBy { it.accountId }
+}
+```
+
+The first request checks memory, then internal Room storage, then the loader. A successful loader
+result is cached and returned directly as `V`; consumers do not handle an engine result hierarchy.
+
+## 5. Override one request
+
+Scope defaults can be changed for one call:
+
+```kotlin
+val profile = cache.cache(
+    scope = profiles,
+    key = ProfileKey(accountId),
+    overrides = CacheOverrides(
+        expiresAfter = Duration.ZERO,
+        refresh = CacheRefresh.ALWAYS,
+        useStaleOnError = false,
+    ),
+) {
+    api.loadProfile(accountId)
+}
+```
+
+The effective expiration is stored with the committed entry. A zero-duration result is immediately
+stale, so the next `IF_NEEDED` request loads again.
+
+## 6. Observe changes
+
+Use a scope to observe one value as reactive state:
+
+```kotlin
+val states: Flow<CacheState<Article>> = cache.observe(
+    scope = articles,
+    key = ArticleKey(accountId, slug),
+)
+```
+
+The flow emits current cache state immediately and later emits persistent hydration, source refresh,
+successful replacement, failure, and clear changes for the same address. It does not
+invoke a loader. Continue to use `cache` with `CacheRefresh.ALWAYS` when the application wants to
+refresh explicitly.
+
+Direct values use `observe(key, options)`. Files use `observeFile(key, options)` or
+`observeFile(scope, key)` and emit `CachedFileInfo` rather than an unsafe, unleased path. See
+[observing cache state](observation.md) for complete examples.
+
+## 7. Accumulate pages
+
+Cursor-paginated results accumulate into one list per query:
+
+```kotlin
+val feed = cachePagedScope<FeedQuery, Article, String>("feed") {
+    expiresAfter = 5.minutes
+    identifyBy { article -> article.id }
+    partitionBy { query -> query.accountId }
+}
+
+val state = cache.cachePages(feed, FeedQuery(accountId, "latest"), CachePages.NEXT) { cursor ->
+    val response = api.loadArticles(cursor)
+    CachePage(response.articles, nextCursor = response.nextCursor)
+}
+```
+
+Reloading the first page discards later pages so a shifted source cannot produce duplicates. See
+[paged caching](paged-caching.md).
+
+## 8. Stream files
+
+The file loader receives a `CacheFileSink`. Write chunks as they arrive:
+
+```kotlin
+val document = cache.cacheFile(
+    key = DocumentKey(accountId, documentId),
+    options = CacheFileOptions(
+        namespace = "documents",
+        partition = accountId,
+        expiresAfter = 1.days,
+        maxEntryBytes = 25L * 1_024 * 1_024,
+        maxEntries = 100,
+        maxBytes = 250L * 1_024 * 1_024,
+        mediaType = "application/pdf",
+    ),
+) { sink ->
+    documentApi.download(documentId) { bytes -> sink.write(bytes) }
+}
+
+try {
+    viewer.open(document.path)
+} finally {
+    document.close()
+}
+```
+
+The manager stores file content outside Room and keeps only its durable index and metadata there.
+Never retain the path after closing the lease.
+
+## Namespaces, partitions, and keys
+
+An address consists of a namespace, partition, and serialized key.
+
+- Namespace identifies one logical cache and its stable configuration.
+- Partition isolates an account, tenant, environment, or session.
+- Key identifies one entry inside that partition.
+
+Direct calls derive a namespace when it is omitted, but explicit names are safer for long-lived or
+persistent caches. A manager rejects reuse of a namespace with incompatible types, storage, or
+limits.
+
+`clearAll()` is the public invalidation boundary; it clears memory values, persistent values,
+accumulated pages, and cached files. Use different managers when independent global clearing or
+lifecycle ownership is required.
 
 ## Lifecycle
 
-The manager owns its supervisor job, registered resources, memory, and optional persistent store.
-Create it at the application/session scope and always call `close()` when that scope ends. Closing
-is idempotent, cancels manager work, clears memory, closes the store, and does not cancel the host
-parent job. Restartable hosts should use `RestartableCacheManagerOwner` and await `stop()` before
-cancelling their host scope. See [lifecycle ownership](lifecycle.md) for shutdown ordering, failure
-semantics, and Koin integration boundaries.
+Keep the manager in a long-lived owner rather than a screen or short-lived UI component. Call
+`close()` at explicit suspending shutdown boundaries such as tests, logout-driven container
+replacement, or a controlled JVM host. Close any active `CachedFile` leases first.
 
-Runnable consumers are under [`samples/consumer`](../samples/consumer). They resolve published
-artifacts from a local Maven repository rather than using Gradle project dependencies.
+See [lifecycle ownership](lifecycle.md) and [guarantees and limitations](guarantees-and-limitations.md)
+for the complete behavioral contract.

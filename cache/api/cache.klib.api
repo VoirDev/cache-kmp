@@ -1,0 +1,532 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <dev.voir:cache>
+final enum class dev.voir.cache/CacheActivity : kotlin/Enum<dev.voir.cache/CacheActivity> { // dev.voir.cache/CacheActivity|null[0]
+    enum entry HYDRATING // dev.voir.cache/CacheActivity.HYDRATING|null[0]
+    enum entry IDLE // dev.voir.cache/CacheActivity.IDLE|null[0]
+    enum entry REFRESHING // dev.voir.cache/CacheActivity.REFRESHING|null[0]
+
+    final val entries // dev.voir.cache/CacheActivity.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<dev.voir.cache/CacheActivity> // dev.voir.cache/CacheActivity.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): dev.voir.cache/CacheActivity // dev.voir.cache/CacheActivity.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<dev.voir.cache/CacheActivity> // dev.voir.cache/CacheActivity.values|values#static(){}[0]
+}
+
+final enum class dev.voir.cache/CacheDuplicates : kotlin/Enum<dev.voir.cache/CacheDuplicates> { // dev.voir.cache/CacheDuplicates|null[0]
+    enum entry KEEP_EXISTING // dev.voir.cache/CacheDuplicates.KEEP_EXISTING|null[0]
+    enum entry REPLACE_EXISTING // dev.voir.cache/CacheDuplicates.REPLACE_EXISTING|null[0]
+
+    final val entries // dev.voir.cache/CacheDuplicates.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<dev.voir.cache/CacheDuplicates> // dev.voir.cache/CacheDuplicates.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): dev.voir.cache/CacheDuplicates // dev.voir.cache/CacheDuplicates.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<dev.voir.cache/CacheDuplicates> // dev.voir.cache/CacheDuplicates.values|values#static(){}[0]
+}
+
+final enum class dev.voir.cache/CacheFileFailureReason : kotlin/Enum<dev.voir.cache/CacheFileFailureReason> { // dev.voir.cache/CacheFileFailureReason|null[0]
+    enum entry CAPACITY_UNAVAILABLE // dev.voir.cache/CacheFileFailureReason.CAPACITY_UNAVAILABLE|null[0]
+    enum entry ENTRY_TOO_LARGE // dev.voir.cache/CacheFileFailureReason.ENTRY_TOO_LARGE|null[0]
+    enum entry STORAGE_UNAVAILABLE // dev.voir.cache/CacheFileFailureReason.STORAGE_UNAVAILABLE|null[0]
+    enum entry SUPERSEDED // dev.voir.cache/CacheFileFailureReason.SUPERSEDED|null[0]
+
+    final val entries // dev.voir.cache/CacheFileFailureReason.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<dev.voir.cache/CacheFileFailureReason> // dev.voir.cache/CacheFileFailureReason.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): dev.voir.cache/CacheFileFailureReason // dev.voir.cache/CacheFileFailureReason.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<dev.voir.cache/CacheFileFailureReason> // dev.voir.cache/CacheFileFailureReason.values|values#static(){}[0]
+}
+
+final enum class dev.voir.cache/CacheFreshness : kotlin/Enum<dev.voir.cache/CacheFreshness> { // dev.voir.cache/CacheFreshness|null[0]
+    enum entry ABSENT // dev.voir.cache/CacheFreshness.ABSENT|null[0]
+    enum entry FRESH // dev.voir.cache/CacheFreshness.FRESH|null[0]
+    enum entry STALE // dev.voir.cache/CacheFreshness.STALE|null[0]
+
+    final val entries // dev.voir.cache/CacheFreshness.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<dev.voir.cache/CacheFreshness> // dev.voir.cache/CacheFreshness.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): dev.voir.cache/CacheFreshness // dev.voir.cache/CacheFreshness.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<dev.voir.cache/CacheFreshness> // dev.voir.cache/CacheFreshness.values|values#static(){}[0]
+}
+
+final enum class dev.voir.cache/CachePageActivity : kotlin/Enum<dev.voir.cache/CachePageActivity> { // dev.voir.cache/CachePageActivity|null[0]
+    enum entry APPENDING // dev.voir.cache/CachePageActivity.APPENDING|null[0]
+    enum entry IDLE // dev.voir.cache/CachePageActivity.IDLE|null[0]
+    enum entry LOADING // dev.voir.cache/CachePageActivity.LOADING|null[0]
+    enum entry REFRESHING // dev.voir.cache/CachePageActivity.REFRESHING|null[0]
+
+    final val entries // dev.voir.cache/CachePageActivity.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<dev.voir.cache/CachePageActivity> // dev.voir.cache/CachePageActivity.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): dev.voir.cache/CachePageActivity // dev.voir.cache/CachePageActivity.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<dev.voir.cache/CachePageActivity> // dev.voir.cache/CachePageActivity.values|values#static(){}[0]
+}
+
+final enum class dev.voir.cache/CachePageBoundary : kotlin/Enum<dev.voir.cache/CachePageBoundary> { // dev.voir.cache/CachePageBoundary|null[0]
+    enum entry EMPTY_PAGE // dev.voir.cache/CachePageBoundary.EMPTY_PAGE|null[0]
+    enum entry MAX_ITEMS_PER_QUERY // dev.voir.cache/CachePageBoundary.MAX_ITEMS_PER_QUERY|null[0]
+    enum entry MAX_PAGES // dev.voir.cache/CachePageBoundary.MAX_PAGES|null[0]
+    enum entry MAX_TOTAL_ITEMS // dev.voir.cache/CachePageBoundary.MAX_TOTAL_ITEMS|null[0]
+    enum entry REPEATED_CURSOR // dev.voir.cache/CachePageBoundary.REPEATED_CURSOR|null[0]
+    enum entry SOURCE_END // dev.voir.cache/CachePageBoundary.SOURCE_END|null[0]
+
+    final val entries // dev.voir.cache/CachePageBoundary.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<dev.voir.cache/CachePageBoundary> // dev.voir.cache/CachePageBoundary.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): dev.voir.cache/CachePageBoundary // dev.voir.cache/CachePageBoundary.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<dev.voir.cache/CachePageBoundary> // dev.voir.cache/CachePageBoundary.values|values#static(){}[0]
+}
+
+final enum class dev.voir.cache/CachePages : kotlin/Enum<dev.voir.cache/CachePages> { // dev.voir.cache/CachePages|null[0]
+    enum entry IF_NEEDED // dev.voir.cache/CachePages.IF_NEEDED|null[0]
+    enum entry NEXT // dev.voir.cache/CachePages.NEXT|null[0]
+    enum entry REFRESH // dev.voir.cache/CachePages.REFRESH|null[0]
+
+    final val entries // dev.voir.cache/CachePages.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<dev.voir.cache/CachePages> // dev.voir.cache/CachePages.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): dev.voir.cache/CachePages // dev.voir.cache/CachePages.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<dev.voir.cache/CachePages> // dev.voir.cache/CachePages.values|values#static(){}[0]
+}
+
+final enum class dev.voir.cache/CacheRefresh : kotlin/Enum<dev.voir.cache/CacheRefresh> { // dev.voir.cache/CacheRefresh|null[0]
+    enum entry ALWAYS // dev.voir.cache/CacheRefresh.ALWAYS|null[0]
+    enum entry IF_NEEDED // dev.voir.cache/CacheRefresh.IF_NEEDED|null[0]
+
+    final val entries // dev.voir.cache/CacheRefresh.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<dev.voir.cache/CacheRefresh> // dev.voir.cache/CacheRefresh.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): dev.voir.cache/CacheRefresh // dev.voir.cache/CacheRefresh.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<dev.voir.cache/CacheRefresh> // dev.voir.cache/CacheRefresh.values|values#static(){}[0]
+}
+
+final enum class dev.voir.cache/CacheStorage : kotlin/Enum<dev.voir.cache/CacheStorage> { // dev.voir.cache/CacheStorage|null[0]
+    enum entry MEMORY // dev.voir.cache/CacheStorage.MEMORY|null[0]
+    enum entry PERSISTENT // dev.voir.cache/CacheStorage.PERSISTENT|null[0]
+
+    final val entries // dev.voir.cache/CacheStorage.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<dev.voir.cache/CacheStorage> // dev.voir.cache/CacheStorage.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): dev.voir.cache/CacheStorage // dev.voir.cache/CacheStorage.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<dev.voir.cache/CacheStorage> // dev.voir.cache/CacheStorage.values|values#static(){}[0]
+}
+
+abstract interface dev.voir.cache/CacheFileSink { // dev.voir.cache/CacheFileSink|null[0]
+    abstract val bytesWritten // dev.voir.cache/CacheFileSink.bytesWritten|{}bytesWritten[0]
+        abstract fun <get-bytesWritten>(): kotlin/Long // dev.voir.cache/CacheFileSink.bytesWritten.<get-bytesWritten>|<get-bytesWritten>(){}[0]
+
+    abstract suspend fun write(kotlin/ByteArray, kotlin/Int, kotlin/Int) // dev.voir.cache/CacheFileSink.write|write(kotlin.ByteArray;kotlin.Int;kotlin.Int){}[0]
+    open suspend fun write(kotlin/ByteArray) // dev.voir.cache/CacheFileSink.write|write(kotlin.ByteArray){}[0]
+}
+
+final class <#A: kotlin/Any, #B: kotlin/Any, #C: kotlin/Any> dev.voir.cache/CachePagedScope { // dev.voir.cache/CachePagedScope|null[0]
+    final val name // dev.voir.cache/CachePagedScope.name|{}name[0]
+        final fun <get-name>(): kotlin/String // dev.voir.cache/CachePagedScope.name.<get-name>|<get-name>(){}[0]
+}
+
+final class <#A: kotlin/Any, #B: kotlin/Any> dev.voir.cache/CachePage { // dev.voir.cache/CachePage|null[0]
+    constructor <init>(kotlin.collections/List<#A>, #B? = ..., kotlin/Int? = ...) // dev.voir.cache/CachePage.<init>|<init>(kotlin.collections.List<1:0>;1:1?;kotlin.Int?){}[0]
+
+    final val items // dev.voir.cache/CachePage.items|{}items[0]
+        final fun <get-items>(): kotlin.collections/List<#A> // dev.voir.cache/CachePage.items.<get-items>|<get-items>(){}[0]
+    final val nextCursor // dev.voir.cache/CachePage.nextCursor|{}nextCursor[0]
+        final fun <get-nextCursor>(): #B? // dev.voir.cache/CachePage.nextCursor.<get-nextCursor>|<get-nextCursor>(){}[0]
+    final val totalCount // dev.voir.cache/CachePage.totalCount|{}totalCount[0]
+        final fun <get-totalCount>(): kotlin/Int? // dev.voir.cache/CachePage.totalCount.<get-totalCount>|<get-totalCount>(){}[0]
+
+    final fun component1(): kotlin.collections/List<#A> // dev.voir.cache/CachePage.component1|component1(){}[0]
+    final fun component2(): #B? // dev.voir.cache/CachePage.component2|component2(){}[0]
+    final fun component3(): kotlin/Int? // dev.voir.cache/CachePage.component3|component3(){}[0]
+    final fun copy(kotlin.collections/List<#A> = ..., #B? = ..., kotlin/Int? = ...): dev.voir.cache/CachePage<#A, #B> // dev.voir.cache/CachePage.copy|copy(kotlin.collections.List<1:0>;1:1?;kotlin.Int?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // dev.voir.cache/CachePage.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // dev.voir.cache/CachePage.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // dev.voir.cache/CachePage.toString|toString(){}[0]
+}
+
+final class <#A: kotlin/Any, #B: kotlin/Any> dev.voir.cache/CachePagedScopeBuilder { // dev.voir.cache/CachePagedScopeBuilder|null[0]
+    final var duplicates // dev.voir.cache/CachePagedScopeBuilder.duplicates|{}duplicates[0]
+        final fun <get-duplicates>(): dev.voir.cache/CacheDuplicates // dev.voir.cache/CachePagedScopeBuilder.duplicates.<get-duplicates>|<get-duplicates>(){}[0]
+        final fun <set-duplicates>(dev.voir.cache/CacheDuplicates) // dev.voir.cache/CachePagedScopeBuilder.duplicates.<set-duplicates>|<set-duplicates>(dev.voir.cache.CacheDuplicates){}[0]
+    final var expiresAfter // dev.voir.cache/CachePagedScopeBuilder.expiresAfter|{}expiresAfter[0]
+        final fun <get-expiresAfter>(): kotlin.time/Duration // dev.voir.cache/CachePagedScopeBuilder.expiresAfter.<get-expiresAfter>|<get-expiresAfter>(){}[0]
+        final fun <set-expiresAfter>(kotlin.time/Duration) // dev.voir.cache/CachePagedScopeBuilder.expiresAfter.<set-expiresAfter>|<set-expiresAfter>(kotlin.time.Duration){}[0]
+    final var maxItemsPerQuery // dev.voir.cache/CachePagedScopeBuilder.maxItemsPerQuery|{}maxItemsPerQuery[0]
+        final fun <get-maxItemsPerQuery>(): kotlin/Int // dev.voir.cache/CachePagedScopeBuilder.maxItemsPerQuery.<get-maxItemsPerQuery>|<get-maxItemsPerQuery>(){}[0]
+        final fun <set-maxItemsPerQuery>(kotlin/Int) // dev.voir.cache/CachePagedScopeBuilder.maxItemsPerQuery.<set-maxItemsPerQuery>|<set-maxItemsPerQuery>(kotlin.Int){}[0]
+    final var maxPages // dev.voir.cache/CachePagedScopeBuilder.maxPages|{}maxPages[0]
+        final fun <get-maxPages>(): kotlin/Int // dev.voir.cache/CachePagedScopeBuilder.maxPages.<get-maxPages>|<get-maxPages>(){}[0]
+        final fun <set-maxPages>(kotlin/Int) // dev.voir.cache/CachePagedScopeBuilder.maxPages.<set-maxPages>|<set-maxPages>(kotlin.Int){}[0]
+    final var maxQueries // dev.voir.cache/CachePagedScopeBuilder.maxQueries|{}maxQueries[0]
+        final fun <get-maxQueries>(): kotlin/Int // dev.voir.cache/CachePagedScopeBuilder.maxQueries.<get-maxQueries>|<get-maxQueries>(){}[0]
+        final fun <set-maxQueries>(kotlin/Int) // dev.voir.cache/CachePagedScopeBuilder.maxQueries.<set-maxQueries>|<set-maxQueries>(kotlin.Int){}[0]
+    final var maxTotalItems // dev.voir.cache/CachePagedScopeBuilder.maxTotalItems|{}maxTotalItems[0]
+        final fun <get-maxTotalItems>(): kotlin/Int // dev.voir.cache/CachePagedScopeBuilder.maxTotalItems.<get-maxTotalItems>|<get-maxTotalItems>(){}[0]
+        final fun <set-maxTotalItems>(kotlin/Int) // dev.voir.cache/CachePagedScopeBuilder.maxTotalItems.<set-maxTotalItems>|<set-maxTotalItems>(kotlin.Int){}[0]
+    final var useStaleOnError // dev.voir.cache/CachePagedScopeBuilder.useStaleOnError|{}useStaleOnError[0]
+        final fun <get-useStaleOnError>(): kotlin/Boolean // dev.voir.cache/CachePagedScopeBuilder.useStaleOnError.<get-useStaleOnError>|<get-useStaleOnError>(){}[0]
+        final fun <set-useStaleOnError>(kotlin/Boolean) // dev.voir.cache/CachePagedScopeBuilder.useStaleOnError.<set-useStaleOnError>|<set-useStaleOnError>(kotlin.Boolean){}[0]
+
+    final fun identifyBy(kotlin/Function1<#B, kotlin/Any>) // dev.voir.cache/CachePagedScopeBuilder.identifyBy|identifyBy(kotlin.Function1<1:1,kotlin.Any>){}[0]
+    final fun partition(kotlin/String) // dev.voir.cache/CachePagedScopeBuilder.partition|partition(kotlin.String){}[0]
+    final fun partitionBy(kotlin/Function1<#A, kotlin/String>) // dev.voir.cache/CachePagedScopeBuilder.partitionBy|partitionBy(kotlin.Function1<1:0,kotlin.String>){}[0]
+}
+
+final class <#A: kotlin/Any, #B: kotlin/Any> dev.voir.cache/CachePagedState { // dev.voir.cache/CachePagedState|null[0]
+    constructor <init>(kotlin.collections/List<#A> = ..., #B? = ..., kotlin/Int? = ..., kotlin/Int = ..., dev.voir.cache/CacheFreshness = ..., dev.voir.cache/CachePageActivity = ..., dev.voir.cache/CacheEntryMetadata? = ..., kotlin/Throwable? = ..., kotlin/Throwable? = ..., dev.voir.cache/CachePageBoundary? = ...) // dev.voir.cache/CachePagedState.<init>|<init>(kotlin.collections.List<1:0>;1:1?;kotlin.Int?;kotlin.Int;dev.voir.cache.CacheFreshness;dev.voir.cache.CachePageActivity;dev.voir.cache.CacheEntryMetadata?;kotlin.Throwable?;kotlin.Throwable?;dev.voir.cache.CachePageBoundary?){}[0]
+
+    final val activity // dev.voir.cache/CachePagedState.activity|{}activity[0]
+        final fun <get-activity>(): dev.voir.cache/CachePageActivity // dev.voir.cache/CachePagedState.activity.<get-activity>|<get-activity>(){}[0]
+    final val appendError // dev.voir.cache/CachePagedState.appendError|{}appendError[0]
+        final fun <get-appendError>(): kotlin/Throwable? // dev.voir.cache/CachePagedState.appendError.<get-appendError>|<get-appendError>(){}[0]
+    final val boundary // dev.voir.cache/CachePagedState.boundary|{}boundary[0]
+        final fun <get-boundary>(): dev.voir.cache/CachePageBoundary? // dev.voir.cache/CachePagedState.boundary.<get-boundary>|<get-boundary>(){}[0]
+    final val canLoadNext // dev.voir.cache/CachePagedState.canLoadNext|{}canLoadNext[0]
+        final fun <get-canLoadNext>(): kotlin/Boolean // dev.voir.cache/CachePagedState.canLoadNext.<get-canLoadNext>|<get-canLoadNext>(){}[0]
+    final val freshness // dev.voir.cache/CachePagedState.freshness|{}freshness[0]
+        final fun <get-freshness>(): dev.voir.cache/CacheFreshness // dev.voir.cache/CachePagedState.freshness.<get-freshness>|<get-freshness>(){}[0]
+    final val hasItems // dev.voir.cache/CachePagedState.hasItems|{}hasItems[0]
+        final fun <get-hasItems>(): kotlin/Boolean // dev.voir.cache/CachePagedState.hasItems.<get-hasItems>|<get-hasItems>(){}[0]
+    final val isLoading // dev.voir.cache/CachePagedState.isLoading|{}isLoading[0]
+        final fun <get-isLoading>(): kotlin/Boolean // dev.voir.cache/CachePagedState.isLoading.<get-isLoading>|<get-isLoading>(){}[0]
+    final val isStale // dev.voir.cache/CachePagedState.isStale|{}isStale[0]
+        final fun <get-isStale>(): kotlin/Boolean // dev.voir.cache/CachePagedState.isStale.<get-isStale>|<get-isStale>(){}[0]
+    final val items // dev.voir.cache/CachePagedState.items|{}items[0]
+        final fun <get-items>(): kotlin.collections/List<#A> // dev.voir.cache/CachePagedState.items.<get-items>|<get-items>(){}[0]
+    final val metadata // dev.voir.cache/CachePagedState.metadata|{}metadata[0]
+        final fun <get-metadata>(): dev.voir.cache/CacheEntryMetadata? // dev.voir.cache/CachePagedState.metadata.<get-metadata>|<get-metadata>(){}[0]
+    final val nextCursor // dev.voir.cache/CachePagedState.nextCursor|{}nextCursor[0]
+        final fun <get-nextCursor>(): #B? // dev.voir.cache/CachePagedState.nextCursor.<get-nextCursor>|<get-nextCursor>(){}[0]
+    final val pageCount // dev.voir.cache/CachePagedState.pageCount|{}pageCount[0]
+        final fun <get-pageCount>(): kotlin/Int // dev.voir.cache/CachePagedState.pageCount.<get-pageCount>|<get-pageCount>(){}[0]
+    final val refreshError // dev.voir.cache/CachePagedState.refreshError|{}refreshError[0]
+        final fun <get-refreshError>(): kotlin/Throwable? // dev.voir.cache/CachePagedState.refreshError.<get-refreshError>|<get-refreshError>(){}[0]
+    final val totalCount // dev.voir.cache/CachePagedState.totalCount|{}totalCount[0]
+        final fun <get-totalCount>(): kotlin/Int? // dev.voir.cache/CachePagedState.totalCount.<get-totalCount>|<get-totalCount>(){}[0]
+
+    final fun component1(): kotlin.collections/List<#A> // dev.voir.cache/CachePagedState.component1|component1(){}[0]
+    final fun component10(): dev.voir.cache/CachePageBoundary? // dev.voir.cache/CachePagedState.component10|component10(){}[0]
+    final fun component2(): #B? // dev.voir.cache/CachePagedState.component2|component2(){}[0]
+    final fun component3(): kotlin/Int? // dev.voir.cache/CachePagedState.component3|component3(){}[0]
+    final fun component4(): kotlin/Int // dev.voir.cache/CachePagedState.component4|component4(){}[0]
+    final fun component5(): dev.voir.cache/CacheFreshness // dev.voir.cache/CachePagedState.component5|component5(){}[0]
+    final fun component6(): dev.voir.cache/CachePageActivity // dev.voir.cache/CachePagedState.component6|component6(){}[0]
+    final fun component7(): dev.voir.cache/CacheEntryMetadata? // dev.voir.cache/CachePagedState.component7|component7(){}[0]
+    final fun component8(): kotlin/Throwable? // dev.voir.cache/CachePagedState.component8|component8(){}[0]
+    final fun component9(): kotlin/Throwable? // dev.voir.cache/CachePagedState.component9|component9(){}[0]
+    final fun copy(kotlin.collections/List<#A> = ..., #B? = ..., kotlin/Int? = ..., kotlin/Int = ..., dev.voir.cache/CacheFreshness = ..., dev.voir.cache/CachePageActivity = ..., dev.voir.cache/CacheEntryMetadata? = ..., kotlin/Throwable? = ..., kotlin/Throwable? = ..., dev.voir.cache/CachePageBoundary? = ...): dev.voir.cache/CachePagedState<#A, #B> // dev.voir.cache/CachePagedState.copy|copy(kotlin.collections.List<1:0>;1:1?;kotlin.Int?;kotlin.Int;dev.voir.cache.CacheFreshness;dev.voir.cache.CachePageActivity;dev.voir.cache.CacheEntryMetadata?;kotlin.Throwable?;kotlin.Throwable?;dev.voir.cache.CachePageBoundary?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // dev.voir.cache/CachePagedState.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // dev.voir.cache/CachePagedState.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // dev.voir.cache/CachePagedState.toString|toString(){}[0]
+}
+
+final class <#A: kotlin/Any, #B: kotlin/Any> dev.voir.cache/CacheScope { // dev.voir.cache/CacheScope|null[0]
+    final val name // dev.voir.cache/CacheScope.name|{}name[0]
+        final fun <get-name>(): kotlin/String // dev.voir.cache/CacheScope.name.<get-name>|<get-name>(){}[0]
+}
+
+final class <#A: kotlin/Any> dev.voir.cache/CacheFileScope { // dev.voir.cache/CacheFileScope|null[0]
+    final val name // dev.voir.cache/CacheFileScope.name|{}name[0]
+        final fun <get-name>(): kotlin/String // dev.voir.cache/CacheFileScope.name.<get-name>|<get-name>(){}[0]
+}
+
+final class <#A: kotlin/Any> dev.voir.cache/CacheFileScopeBuilder { // dev.voir.cache/CacheFileScopeBuilder|null[0]
+    final var expiresAfter // dev.voir.cache/CacheFileScopeBuilder.expiresAfter|{}expiresAfter[0]
+        final fun <get-expiresAfter>(): kotlin.time/Duration // dev.voir.cache/CacheFileScopeBuilder.expiresAfter.<get-expiresAfter>|<get-expiresAfter>(){}[0]
+        final fun <set-expiresAfter>(kotlin.time/Duration) // dev.voir.cache/CacheFileScopeBuilder.expiresAfter.<set-expiresAfter>|<set-expiresAfter>(kotlin.time.Duration){}[0]
+    final var maxBytes // dev.voir.cache/CacheFileScopeBuilder.maxBytes|{}maxBytes[0]
+        final fun <get-maxBytes>(): kotlin/Long // dev.voir.cache/CacheFileScopeBuilder.maxBytes.<get-maxBytes>|<get-maxBytes>(){}[0]
+        final fun <set-maxBytes>(kotlin/Long) // dev.voir.cache/CacheFileScopeBuilder.maxBytes.<set-maxBytes>|<set-maxBytes>(kotlin.Long){}[0]
+    final var maxEntries // dev.voir.cache/CacheFileScopeBuilder.maxEntries|{}maxEntries[0]
+        final fun <get-maxEntries>(): kotlin/Int // dev.voir.cache/CacheFileScopeBuilder.maxEntries.<get-maxEntries>|<get-maxEntries>(){}[0]
+        final fun <set-maxEntries>(kotlin/Int) // dev.voir.cache/CacheFileScopeBuilder.maxEntries.<set-maxEntries>|<set-maxEntries>(kotlin.Int){}[0]
+    final var maxEntryBytes // dev.voir.cache/CacheFileScopeBuilder.maxEntryBytes|{}maxEntryBytes[0]
+        final fun <get-maxEntryBytes>(): kotlin/Long // dev.voir.cache/CacheFileScopeBuilder.maxEntryBytes.<get-maxEntryBytes>|<get-maxEntryBytes>(){}[0]
+        final fun <set-maxEntryBytes>(kotlin/Long) // dev.voir.cache/CacheFileScopeBuilder.maxEntryBytes.<set-maxEntryBytes>|<set-maxEntryBytes>(kotlin.Long){}[0]
+    final var mediaType // dev.voir.cache/CacheFileScopeBuilder.mediaType|{}mediaType[0]
+        final fun <get-mediaType>(): kotlin/String? // dev.voir.cache/CacheFileScopeBuilder.mediaType.<get-mediaType>|<get-mediaType>(){}[0]
+        final fun <set-mediaType>(kotlin/String?) // dev.voir.cache/CacheFileScopeBuilder.mediaType.<set-mediaType>|<set-mediaType>(kotlin.String?){}[0]
+    final var partition // dev.voir.cache/CacheFileScopeBuilder.partition|{}partition[0]
+        final fun <get-partition>(): kotlin/String // dev.voir.cache/CacheFileScopeBuilder.partition.<get-partition>|<get-partition>(){}[0]
+        final fun <set-partition>(kotlin/String) // dev.voir.cache/CacheFileScopeBuilder.partition.<set-partition>|<set-partition>(kotlin.String){}[0]
+    final var refresh // dev.voir.cache/CacheFileScopeBuilder.refresh|{}refresh[0]
+        final fun <get-refresh>(): dev.voir.cache/CacheRefresh // dev.voir.cache/CacheFileScopeBuilder.refresh.<get-refresh>|<get-refresh>(){}[0]
+        final fun <set-refresh>(dev.voir.cache/CacheRefresh) // dev.voir.cache/CacheFileScopeBuilder.refresh.<set-refresh>|<set-refresh>(dev.voir.cache.CacheRefresh){}[0]
+    final var useStaleOnError // dev.voir.cache/CacheFileScopeBuilder.useStaleOnError|{}useStaleOnError[0]
+        final fun <get-useStaleOnError>(): kotlin/Boolean // dev.voir.cache/CacheFileScopeBuilder.useStaleOnError.<get-useStaleOnError>|<get-useStaleOnError>(){}[0]
+        final fun <set-useStaleOnError>(kotlin/Boolean) // dev.voir.cache/CacheFileScopeBuilder.useStaleOnError.<set-useStaleOnError>|<set-useStaleOnError>(kotlin.Boolean){}[0]
+
+    final fun partitionBy(kotlin/Function1<#A, kotlin/String>) // dev.voir.cache/CacheFileScopeBuilder.partitionBy|partitionBy(kotlin.Function1<1:0,kotlin.String>){}[0]
+}
+
+final class <#A: kotlin/Any> dev.voir.cache/CacheScopeBuilder { // dev.voir.cache/CacheScopeBuilder|null[0]
+    final var expiresAfter // dev.voir.cache/CacheScopeBuilder.expiresAfter|{}expiresAfter[0]
+        final fun <get-expiresAfter>(): kotlin.time/Duration // dev.voir.cache/CacheScopeBuilder.expiresAfter.<get-expiresAfter>|<get-expiresAfter>(){}[0]
+        final fun <set-expiresAfter>(kotlin.time/Duration) // dev.voir.cache/CacheScopeBuilder.expiresAfter.<set-expiresAfter>|<set-expiresAfter>(kotlin.time.Duration){}[0]
+    final var maxMemoryEntries // dev.voir.cache/CacheScopeBuilder.maxMemoryEntries|{}maxMemoryEntries[0]
+        final fun <get-maxMemoryEntries>(): kotlin/Int // dev.voir.cache/CacheScopeBuilder.maxMemoryEntries.<get-maxMemoryEntries>|<get-maxMemoryEntries>(){}[0]
+        final fun <set-maxMemoryEntries>(kotlin/Int) // dev.voir.cache/CacheScopeBuilder.maxMemoryEntries.<set-maxMemoryEntries>|<set-maxMemoryEntries>(kotlin.Int){}[0]
+    final var maxPayloadBytes // dev.voir.cache/CacheScopeBuilder.maxPayloadBytes|{}maxPayloadBytes[0]
+        final fun <get-maxPayloadBytes>(): kotlin/Int // dev.voir.cache/CacheScopeBuilder.maxPayloadBytes.<get-maxPayloadBytes>|<get-maxPayloadBytes>(){}[0]
+        final fun <set-maxPayloadBytes>(kotlin/Int) // dev.voir.cache/CacheScopeBuilder.maxPayloadBytes.<set-maxPayloadBytes>|<set-maxPayloadBytes>(kotlin.Int){}[0]
+    final var partition // dev.voir.cache/CacheScopeBuilder.partition|{}partition[0]
+        final fun <get-partition>(): kotlin/String // dev.voir.cache/CacheScopeBuilder.partition.<get-partition>|<get-partition>(){}[0]
+        final fun <set-partition>(kotlin/String) // dev.voir.cache/CacheScopeBuilder.partition.<set-partition>|<set-partition>(kotlin.String){}[0]
+    final var refresh // dev.voir.cache/CacheScopeBuilder.refresh|{}refresh[0]
+        final fun <get-refresh>(): dev.voir.cache/CacheRefresh // dev.voir.cache/CacheScopeBuilder.refresh.<get-refresh>|<get-refresh>(){}[0]
+        final fun <set-refresh>(dev.voir.cache/CacheRefresh) // dev.voir.cache/CacheScopeBuilder.refresh.<set-refresh>|<set-refresh>(dev.voir.cache.CacheRefresh){}[0]
+    final var storage // dev.voir.cache/CacheScopeBuilder.storage|{}storage[0]
+        final fun <get-storage>(): dev.voir.cache/CacheStorage // dev.voir.cache/CacheScopeBuilder.storage.<get-storage>|<get-storage>(){}[0]
+        final fun <set-storage>(dev.voir.cache/CacheStorage) // dev.voir.cache/CacheScopeBuilder.storage.<set-storage>|<set-storage>(dev.voir.cache.CacheStorage){}[0]
+    final var useStaleOnError // dev.voir.cache/CacheScopeBuilder.useStaleOnError|{}useStaleOnError[0]
+        final fun <get-useStaleOnError>(): kotlin/Boolean // dev.voir.cache/CacheScopeBuilder.useStaleOnError.<get-useStaleOnError>|<get-useStaleOnError>(){}[0]
+        final fun <set-useStaleOnError>(kotlin/Boolean) // dev.voir.cache/CacheScopeBuilder.useStaleOnError.<set-useStaleOnError>|<set-useStaleOnError>(kotlin.Boolean){}[0]
+
+    final fun partitionBy(kotlin/Function1<#A, kotlin/String>) // dev.voir.cache/CacheScopeBuilder.partitionBy|partitionBy(kotlin.Function1<1:0,kotlin.String>){}[0]
+}
+
+final class <#A: kotlin/Any> dev.voir.cache/CacheState { // dev.voir.cache/CacheState|null[0]
+    constructor <init>(#A? = ..., dev.voir.cache/CacheFreshness = ..., dev.voir.cache/CacheActivity = ..., dev.voir.cache/CacheEntryMetadata? = ..., kotlin/Throwable? = ...) // dev.voir.cache/CacheState.<init>|<init>(1:0?;dev.voir.cache.CacheFreshness;dev.voir.cache.CacheActivity;dev.voir.cache.CacheEntryMetadata?;kotlin.Throwable?){}[0]
+
+    final val activity // dev.voir.cache/CacheState.activity|{}activity[0]
+        final fun <get-activity>(): dev.voir.cache/CacheActivity // dev.voir.cache/CacheState.activity.<get-activity>|<get-activity>(){}[0]
+    final val freshness // dev.voir.cache/CacheState.freshness|{}freshness[0]
+        final fun <get-freshness>(): dev.voir.cache/CacheFreshness // dev.voir.cache/CacheState.freshness.<get-freshness>|<get-freshness>(){}[0]
+    final val hasValue // dev.voir.cache/CacheState.hasValue|{}hasValue[0]
+        final fun <get-hasValue>(): kotlin/Boolean // dev.voir.cache/CacheState.hasValue.<get-hasValue>|<get-hasValue>(){}[0]
+    final val isLoading // dev.voir.cache/CacheState.isLoading|{}isLoading[0]
+        final fun <get-isLoading>(): kotlin/Boolean // dev.voir.cache/CacheState.isLoading.<get-isLoading>|<get-isLoading>(){}[0]
+    final val isStale // dev.voir.cache/CacheState.isStale|{}isStale[0]
+        final fun <get-isStale>(): kotlin/Boolean // dev.voir.cache/CacheState.isStale.<get-isStale>|<get-isStale>(){}[0]
+    final val metadata // dev.voir.cache/CacheState.metadata|{}metadata[0]
+        final fun <get-metadata>(): dev.voir.cache/CacheEntryMetadata? // dev.voir.cache/CacheState.metadata.<get-metadata>|<get-metadata>(){}[0]
+    final val refreshError // dev.voir.cache/CacheState.refreshError|{}refreshError[0]
+        final fun <get-refreshError>(): kotlin/Throwable? // dev.voir.cache/CacheState.refreshError.<get-refreshError>|<get-refreshError>(){}[0]
+    final val value // dev.voir.cache/CacheState.value|{}value[0]
+        final fun <get-value>(): #A? // dev.voir.cache/CacheState.value.<get-value>|<get-value>(){}[0]
+
+    final fun component1(): #A? // dev.voir.cache/CacheState.component1|component1(){}[0]
+    final fun component2(): dev.voir.cache/CacheFreshness // dev.voir.cache/CacheState.component2|component2(){}[0]
+    final fun component3(): dev.voir.cache/CacheActivity // dev.voir.cache/CacheState.component3|component3(){}[0]
+    final fun component4(): dev.voir.cache/CacheEntryMetadata? // dev.voir.cache/CacheState.component4|component4(){}[0]
+    final fun component5(): kotlin/Throwable? // dev.voir.cache/CacheState.component5|component5(){}[0]
+    final fun copy(#A? = ..., dev.voir.cache/CacheFreshness = ..., dev.voir.cache/CacheActivity = ..., dev.voir.cache/CacheEntryMetadata? = ..., kotlin/Throwable? = ...): dev.voir.cache/CacheState<#A> // dev.voir.cache/CacheState.copy|copy(1:0?;dev.voir.cache.CacheFreshness;dev.voir.cache.CacheActivity;dev.voir.cache.CacheEntryMetadata?;kotlin.Throwable?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // dev.voir.cache/CacheState.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // dev.voir.cache/CacheState.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // dev.voir.cache/CacheState.toString|toString(){}[0]
+}
+
+final class dev.voir.cache/CacheEntryMetadata { // dev.voir.cache/CacheEntryMetadata|null[0]
+    constructor <init>(kotlin.time/Instant, kotlin.time/Instant?) // dev.voir.cache/CacheEntryMetadata.<init>|<init>(kotlin.time.Instant;kotlin.time.Instant?){}[0]
+
+    final val expiresAt // dev.voir.cache/CacheEntryMetadata.expiresAt|{}expiresAt[0]
+        final fun <get-expiresAt>(): kotlin.time/Instant? // dev.voir.cache/CacheEntryMetadata.expiresAt.<get-expiresAt>|<get-expiresAt>(){}[0]
+    final val validatedAt // dev.voir.cache/CacheEntryMetadata.validatedAt|{}validatedAt[0]
+        final fun <get-validatedAt>(): kotlin.time/Instant // dev.voir.cache/CacheEntryMetadata.validatedAt.<get-validatedAt>|<get-validatedAt>(){}[0]
+
+    final fun component1(): kotlin.time/Instant // dev.voir.cache/CacheEntryMetadata.component1|component1(){}[0]
+    final fun component2(): kotlin.time/Instant? // dev.voir.cache/CacheEntryMetadata.component2|component2(){}[0]
+    final fun copy(kotlin.time/Instant = ..., kotlin.time/Instant? = ...): dev.voir.cache/CacheEntryMetadata // dev.voir.cache/CacheEntryMetadata.copy|copy(kotlin.time.Instant;kotlin.time.Instant?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // dev.voir.cache/CacheEntryMetadata.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // dev.voir.cache/CacheEntryMetadata.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // dev.voir.cache/CacheEntryMetadata.toString|toString(){}[0]
+}
+
+final class dev.voir.cache/CacheFileException : kotlin/IllegalStateException { // dev.voir.cache/CacheFileException|null[0]
+    constructor <init>(dev.voir.cache/CacheFileFailureReason) // dev.voir.cache/CacheFileException.<init>|<init>(dev.voir.cache.CacheFileFailureReason){}[0]
+
+    final val reason // dev.voir.cache/CacheFileException.reason|{}reason[0]
+        final fun <get-reason>(): dev.voir.cache/CacheFileFailureReason // dev.voir.cache/CacheFileException.reason.<get-reason>|<get-reason>(){}[0]
+}
+
+final class dev.voir.cache/CacheFileOptions { // dev.voir.cache/CacheFileOptions|null[0]
+    constructor <init>(kotlin/String? = ..., kotlin.time/Duration = ..., kotlin/Long = ..., kotlin/Int = ..., kotlin/Long = ..., kotlin/String = ..., dev.voir.cache/CacheRefresh = ..., kotlin/Boolean = ..., kotlin/String? = ...) // dev.voir.cache/CacheFileOptions.<init>|<init>(kotlin.String?;kotlin.time.Duration;kotlin.Long;kotlin.Int;kotlin.Long;kotlin.String;dev.voir.cache.CacheRefresh;kotlin.Boolean;kotlin.String?){}[0]
+
+    final val expiresAfter // dev.voir.cache/CacheFileOptions.expiresAfter|{}expiresAfter[0]
+        final fun <get-expiresAfter>(): kotlin.time/Duration // dev.voir.cache/CacheFileOptions.expiresAfter.<get-expiresAfter>|<get-expiresAfter>(){}[0]
+    final val maxBytes // dev.voir.cache/CacheFileOptions.maxBytes|{}maxBytes[0]
+        final fun <get-maxBytes>(): kotlin/Long // dev.voir.cache/CacheFileOptions.maxBytes.<get-maxBytes>|<get-maxBytes>(){}[0]
+    final val maxEntries // dev.voir.cache/CacheFileOptions.maxEntries|{}maxEntries[0]
+        final fun <get-maxEntries>(): kotlin/Int // dev.voir.cache/CacheFileOptions.maxEntries.<get-maxEntries>|<get-maxEntries>(){}[0]
+    final val maxEntryBytes // dev.voir.cache/CacheFileOptions.maxEntryBytes|{}maxEntryBytes[0]
+        final fun <get-maxEntryBytes>(): kotlin/Long // dev.voir.cache/CacheFileOptions.maxEntryBytes.<get-maxEntryBytes>|<get-maxEntryBytes>(){}[0]
+    final val mediaType // dev.voir.cache/CacheFileOptions.mediaType|{}mediaType[0]
+        final fun <get-mediaType>(): kotlin/String? // dev.voir.cache/CacheFileOptions.mediaType.<get-mediaType>|<get-mediaType>(){}[0]
+    final val namespace // dev.voir.cache/CacheFileOptions.namespace|{}namespace[0]
+        final fun <get-namespace>(): kotlin/String? // dev.voir.cache/CacheFileOptions.namespace.<get-namespace>|<get-namespace>(){}[0]
+    final val partition // dev.voir.cache/CacheFileOptions.partition|{}partition[0]
+        final fun <get-partition>(): kotlin/String // dev.voir.cache/CacheFileOptions.partition.<get-partition>|<get-partition>(){}[0]
+    final val refresh // dev.voir.cache/CacheFileOptions.refresh|{}refresh[0]
+        final fun <get-refresh>(): dev.voir.cache/CacheRefresh // dev.voir.cache/CacheFileOptions.refresh.<get-refresh>|<get-refresh>(){}[0]
+    final val useStaleOnError // dev.voir.cache/CacheFileOptions.useStaleOnError|{}useStaleOnError[0]
+        final fun <get-useStaleOnError>(): kotlin/Boolean // dev.voir.cache/CacheFileOptions.useStaleOnError.<get-useStaleOnError>|<get-useStaleOnError>(){}[0]
+
+    final fun component1(): kotlin/String? // dev.voir.cache/CacheFileOptions.component1|component1(){}[0]
+    final fun component2(): kotlin.time/Duration // dev.voir.cache/CacheFileOptions.component2|component2(){}[0]
+    final fun component3(): kotlin/Long // dev.voir.cache/CacheFileOptions.component3|component3(){}[0]
+    final fun component4(): kotlin/Int // dev.voir.cache/CacheFileOptions.component4|component4(){}[0]
+    final fun component5(): kotlin/Long // dev.voir.cache/CacheFileOptions.component5|component5(){}[0]
+    final fun component6(): kotlin/String // dev.voir.cache/CacheFileOptions.component6|component6(){}[0]
+    final fun component7(): dev.voir.cache/CacheRefresh // dev.voir.cache/CacheFileOptions.component7|component7(){}[0]
+    final fun component8(): kotlin/Boolean // dev.voir.cache/CacheFileOptions.component8|component8(){}[0]
+    final fun component9(): kotlin/String? // dev.voir.cache/CacheFileOptions.component9|component9(){}[0]
+    final fun copy(kotlin/String? = ..., kotlin.time/Duration = ..., kotlin/Long = ..., kotlin/Int = ..., kotlin/Long = ..., kotlin/String = ..., dev.voir.cache/CacheRefresh = ..., kotlin/Boolean = ..., kotlin/String? = ...): dev.voir.cache/CacheFileOptions // dev.voir.cache/CacheFileOptions.copy|copy(kotlin.String?;kotlin.time.Duration;kotlin.Long;kotlin.Int;kotlin.Long;kotlin.String;dev.voir.cache.CacheRefresh;kotlin.Boolean;kotlin.String?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // dev.voir.cache/CacheFileOptions.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // dev.voir.cache/CacheFileOptions.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // dev.voir.cache/CacheFileOptions.toString|toString(){}[0]
+}
+
+final class dev.voir.cache/CacheFileOverrides { // dev.voir.cache/CacheFileOverrides|null[0]
+    constructor <init>(kotlin.time/Duration? = ..., dev.voir.cache/CacheRefresh? = ..., kotlin/Boolean? = ..., kotlin/String? = ...) // dev.voir.cache/CacheFileOverrides.<init>|<init>(kotlin.time.Duration?;dev.voir.cache.CacheRefresh?;kotlin.Boolean?;kotlin.String?){}[0]
+
+    final val expiresAfter // dev.voir.cache/CacheFileOverrides.expiresAfter|{}expiresAfter[0]
+        final fun <get-expiresAfter>(): kotlin.time/Duration? // dev.voir.cache/CacheFileOverrides.expiresAfter.<get-expiresAfter>|<get-expiresAfter>(){}[0]
+    final val mediaType // dev.voir.cache/CacheFileOverrides.mediaType|{}mediaType[0]
+        final fun <get-mediaType>(): kotlin/String? // dev.voir.cache/CacheFileOverrides.mediaType.<get-mediaType>|<get-mediaType>(){}[0]
+    final val refresh // dev.voir.cache/CacheFileOverrides.refresh|{}refresh[0]
+        final fun <get-refresh>(): dev.voir.cache/CacheRefresh? // dev.voir.cache/CacheFileOverrides.refresh.<get-refresh>|<get-refresh>(){}[0]
+    final val useStaleOnError // dev.voir.cache/CacheFileOverrides.useStaleOnError|{}useStaleOnError[0]
+        final fun <get-useStaleOnError>(): kotlin/Boolean? // dev.voir.cache/CacheFileOverrides.useStaleOnError.<get-useStaleOnError>|<get-useStaleOnError>(){}[0]
+
+    final fun component1(): kotlin.time/Duration? // dev.voir.cache/CacheFileOverrides.component1|component1(){}[0]
+    final fun component2(): dev.voir.cache/CacheRefresh? // dev.voir.cache/CacheFileOverrides.component2|component2(){}[0]
+    final fun component3(): kotlin/Boolean? // dev.voir.cache/CacheFileOverrides.component3|component3(){}[0]
+    final fun component4(): kotlin/String? // dev.voir.cache/CacheFileOverrides.component4|component4(){}[0]
+    final fun copy(kotlin.time/Duration? = ..., dev.voir.cache/CacheRefresh? = ..., kotlin/Boolean? = ..., kotlin/String? = ...): dev.voir.cache/CacheFileOverrides // dev.voir.cache/CacheFileOverrides.copy|copy(kotlin.time.Duration?;dev.voir.cache.CacheRefresh?;kotlin.Boolean?;kotlin.String?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // dev.voir.cache/CacheFileOverrides.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // dev.voir.cache/CacheFileOverrides.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // dev.voir.cache/CacheFileOverrides.toString|toString(){}[0]
+}
+
+final class dev.voir.cache/CacheManager { // dev.voir.cache/CacheManager|null[0]
+    final suspend fun clearAll() // dev.voir.cache/CacheManager.clearAll|clearAll(){}[0]
+    final suspend fun close() // dev.voir.cache/CacheManager.close|close(){}[0]
+}
+
+final class dev.voir.cache/CacheManagerOptions { // dev.voir.cache/CacheManagerOptions|null[0]
+    constructor <init>(kotlin/Int = ..., kotlin/Long = ..., kotlin/Int = ..., kotlin/Long = ...) // dev.voir.cache/CacheManagerOptions.<init>|<init>(kotlin.Int;kotlin.Long;kotlin.Int;kotlin.Long){}[0]
+
+    final val fileMaxBytes // dev.voir.cache/CacheManagerOptions.fileMaxBytes|{}fileMaxBytes[0]
+        final fun <get-fileMaxBytes>(): kotlin/Long // dev.voir.cache/CacheManagerOptions.fileMaxBytes.<get-fileMaxBytes>|<get-fileMaxBytes>(){}[0]
+    final val fileMaxEntries // dev.voir.cache/CacheManagerOptions.fileMaxEntries|{}fileMaxEntries[0]
+        final fun <get-fileMaxEntries>(): kotlin/Int // dev.voir.cache/CacheManagerOptions.fileMaxEntries.<get-fileMaxEntries>|<get-fileMaxEntries>(){}[0]
+    final val persistentMaxBytes // dev.voir.cache/CacheManagerOptions.persistentMaxBytes|{}persistentMaxBytes[0]
+        final fun <get-persistentMaxBytes>(): kotlin/Long // dev.voir.cache/CacheManagerOptions.persistentMaxBytes.<get-persistentMaxBytes>|<get-persistentMaxBytes>(){}[0]
+    final val persistentMaxEntries // dev.voir.cache/CacheManagerOptions.persistentMaxEntries|{}persistentMaxEntries[0]
+        final fun <get-persistentMaxEntries>(): kotlin/Int // dev.voir.cache/CacheManagerOptions.persistentMaxEntries.<get-persistentMaxEntries>|<get-persistentMaxEntries>(){}[0]
+
+    final fun component1(): kotlin/Int // dev.voir.cache/CacheManagerOptions.component1|component1(){}[0]
+    final fun component2(): kotlin/Long // dev.voir.cache/CacheManagerOptions.component2|component2(){}[0]
+    final fun component3(): kotlin/Int // dev.voir.cache/CacheManagerOptions.component3|component3(){}[0]
+    final fun component4(): kotlin/Long // dev.voir.cache/CacheManagerOptions.component4|component4(){}[0]
+    final fun copy(kotlin/Int = ..., kotlin/Long = ..., kotlin/Int = ..., kotlin/Long = ...): dev.voir.cache/CacheManagerOptions // dev.voir.cache/CacheManagerOptions.copy|copy(kotlin.Int;kotlin.Long;kotlin.Int;kotlin.Long){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // dev.voir.cache/CacheManagerOptions.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // dev.voir.cache/CacheManagerOptions.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // dev.voir.cache/CacheManagerOptions.toString|toString(){}[0]
+}
+
+final class dev.voir.cache/CacheOptions { // dev.voir.cache/CacheOptions|null[0]
+    constructor <init>(kotlin/String? = ..., dev.voir.cache/CacheStorage = ..., kotlin.time/Duration = ..., kotlin/Int = ..., kotlin/Int = ..., kotlin/String = ..., dev.voir.cache/CacheRefresh = ..., kotlin/Boolean = ...) // dev.voir.cache/CacheOptions.<init>|<init>(kotlin.String?;dev.voir.cache.CacheStorage;kotlin.time.Duration;kotlin.Int;kotlin.Int;kotlin.String;dev.voir.cache.CacheRefresh;kotlin.Boolean){}[0]
+
+    final val expiresAfter // dev.voir.cache/CacheOptions.expiresAfter|{}expiresAfter[0]
+        final fun <get-expiresAfter>(): kotlin.time/Duration // dev.voir.cache/CacheOptions.expiresAfter.<get-expiresAfter>|<get-expiresAfter>(){}[0]
+    final val maxMemoryEntries // dev.voir.cache/CacheOptions.maxMemoryEntries|{}maxMemoryEntries[0]
+        final fun <get-maxMemoryEntries>(): kotlin/Int // dev.voir.cache/CacheOptions.maxMemoryEntries.<get-maxMemoryEntries>|<get-maxMemoryEntries>(){}[0]
+    final val maxPayloadBytes // dev.voir.cache/CacheOptions.maxPayloadBytes|{}maxPayloadBytes[0]
+        final fun <get-maxPayloadBytes>(): kotlin/Int // dev.voir.cache/CacheOptions.maxPayloadBytes.<get-maxPayloadBytes>|<get-maxPayloadBytes>(){}[0]
+    final val namespace // dev.voir.cache/CacheOptions.namespace|{}namespace[0]
+        final fun <get-namespace>(): kotlin/String? // dev.voir.cache/CacheOptions.namespace.<get-namespace>|<get-namespace>(){}[0]
+    final val partition // dev.voir.cache/CacheOptions.partition|{}partition[0]
+        final fun <get-partition>(): kotlin/String // dev.voir.cache/CacheOptions.partition.<get-partition>|<get-partition>(){}[0]
+    final val refresh // dev.voir.cache/CacheOptions.refresh|{}refresh[0]
+        final fun <get-refresh>(): dev.voir.cache/CacheRefresh // dev.voir.cache/CacheOptions.refresh.<get-refresh>|<get-refresh>(){}[0]
+    final val storage // dev.voir.cache/CacheOptions.storage|{}storage[0]
+        final fun <get-storage>(): dev.voir.cache/CacheStorage // dev.voir.cache/CacheOptions.storage.<get-storage>|<get-storage>(){}[0]
+    final val useStaleOnError // dev.voir.cache/CacheOptions.useStaleOnError|{}useStaleOnError[0]
+        final fun <get-useStaleOnError>(): kotlin/Boolean // dev.voir.cache/CacheOptions.useStaleOnError.<get-useStaleOnError>|<get-useStaleOnError>(){}[0]
+
+    final fun component1(): kotlin/String? // dev.voir.cache/CacheOptions.component1|component1(){}[0]
+    final fun component2(): dev.voir.cache/CacheStorage // dev.voir.cache/CacheOptions.component2|component2(){}[0]
+    final fun component3(): kotlin.time/Duration // dev.voir.cache/CacheOptions.component3|component3(){}[0]
+    final fun component4(): kotlin/Int // dev.voir.cache/CacheOptions.component4|component4(){}[0]
+    final fun component5(): kotlin/Int // dev.voir.cache/CacheOptions.component5|component5(){}[0]
+    final fun component6(): kotlin/String // dev.voir.cache/CacheOptions.component6|component6(){}[0]
+    final fun component7(): dev.voir.cache/CacheRefresh // dev.voir.cache/CacheOptions.component7|component7(){}[0]
+    final fun component8(): kotlin/Boolean // dev.voir.cache/CacheOptions.component8|component8(){}[0]
+    final fun copy(kotlin/String? = ..., dev.voir.cache/CacheStorage = ..., kotlin.time/Duration = ..., kotlin/Int = ..., kotlin/Int = ..., kotlin/String = ..., dev.voir.cache/CacheRefresh = ..., kotlin/Boolean = ...): dev.voir.cache/CacheOptions // dev.voir.cache/CacheOptions.copy|copy(kotlin.String?;dev.voir.cache.CacheStorage;kotlin.time.Duration;kotlin.Int;kotlin.Int;kotlin.String;dev.voir.cache.CacheRefresh;kotlin.Boolean){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // dev.voir.cache/CacheOptions.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // dev.voir.cache/CacheOptions.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // dev.voir.cache/CacheOptions.toString|toString(){}[0]
+}
+
+final class dev.voir.cache/CacheOverrides { // dev.voir.cache/CacheOverrides|null[0]
+    constructor <init>(kotlin.time/Duration? = ..., dev.voir.cache/CacheRefresh? = ..., kotlin/Boolean? = ...) // dev.voir.cache/CacheOverrides.<init>|<init>(kotlin.time.Duration?;dev.voir.cache.CacheRefresh?;kotlin.Boolean?){}[0]
+
+    final val expiresAfter // dev.voir.cache/CacheOverrides.expiresAfter|{}expiresAfter[0]
+        final fun <get-expiresAfter>(): kotlin.time/Duration? // dev.voir.cache/CacheOverrides.expiresAfter.<get-expiresAfter>|<get-expiresAfter>(){}[0]
+    final val refresh // dev.voir.cache/CacheOverrides.refresh|{}refresh[0]
+        final fun <get-refresh>(): dev.voir.cache/CacheRefresh? // dev.voir.cache/CacheOverrides.refresh.<get-refresh>|<get-refresh>(){}[0]
+    final val useStaleOnError // dev.voir.cache/CacheOverrides.useStaleOnError|{}useStaleOnError[0]
+        final fun <get-useStaleOnError>(): kotlin/Boolean? // dev.voir.cache/CacheOverrides.useStaleOnError.<get-useStaleOnError>|<get-useStaleOnError>(){}[0]
+
+    final fun component1(): kotlin.time/Duration? // dev.voir.cache/CacheOverrides.component1|component1(){}[0]
+    final fun component2(): dev.voir.cache/CacheRefresh? // dev.voir.cache/CacheOverrides.component2|component2(){}[0]
+    final fun component3(): kotlin/Boolean? // dev.voir.cache/CacheOverrides.component3|component3(){}[0]
+    final fun copy(kotlin.time/Duration? = ..., dev.voir.cache/CacheRefresh? = ..., kotlin/Boolean? = ...): dev.voir.cache/CacheOverrides // dev.voir.cache/CacheOverrides.copy|copy(kotlin.time.Duration?;dev.voir.cache.CacheRefresh?;kotlin.Boolean?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // dev.voir.cache/CacheOverrides.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // dev.voir.cache/CacheOverrides.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // dev.voir.cache/CacheOverrides.toString|toString(){}[0]
+}
+
+final class dev.voir.cache/CachedFile { // dev.voir.cache/CachedFile|null[0]
+    final val mediaType // dev.voir.cache/CachedFile.mediaType|{}mediaType[0]
+        final fun <get-mediaType>(): kotlin/String? // dev.voir.cache/CachedFile.mediaType.<get-mediaType>|<get-mediaType>(){}[0]
+    final val path // dev.voir.cache/CachedFile.path|{}path[0]
+        final fun <get-path>(): kotlin/String // dev.voir.cache/CachedFile.path.<get-path>|<get-path>(){}[0]
+    final val sizeBytes // dev.voir.cache/CachedFile.sizeBytes|{}sizeBytes[0]
+        final fun <get-sizeBytes>(): kotlin/Long // dev.voir.cache/CachedFile.sizeBytes.<get-sizeBytes>|<get-sizeBytes>(){}[0]
+
+    final suspend fun close() // dev.voir.cache/CachedFile.close|close(){}[0]
+}
+
+final class dev.voir.cache/CachedFileInfo { // dev.voir.cache/CachedFileInfo|null[0]
+    constructor <init>(kotlin/Long, kotlin/String?) // dev.voir.cache/CachedFileInfo.<init>|<init>(kotlin.Long;kotlin.String?){}[0]
+
+    final val mediaType // dev.voir.cache/CachedFileInfo.mediaType|{}mediaType[0]
+        final fun <get-mediaType>(): kotlin/String? // dev.voir.cache/CachedFileInfo.mediaType.<get-mediaType>|<get-mediaType>(){}[0]
+    final val sizeBytes // dev.voir.cache/CachedFileInfo.sizeBytes|{}sizeBytes[0]
+        final fun <get-sizeBytes>(): kotlin/Long // dev.voir.cache/CachedFileInfo.sizeBytes.<get-sizeBytes>|<get-sizeBytes>(){}[0]
+
+    final fun component1(): kotlin/Long // dev.voir.cache/CachedFileInfo.component1|component1(){}[0]
+    final fun component2(): kotlin/String? // dev.voir.cache/CachedFileInfo.component2|component2(){}[0]
+    final fun copy(kotlin/Long = ..., kotlin/String? = ...): dev.voir.cache/CachedFileInfo // dev.voir.cache/CachedFileInfo.copy|copy(kotlin.Long;kotlin.String?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // dev.voir.cache/CachedFileInfo.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // dev.voir.cache/CachedFileInfo.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // dev.voir.cache/CachedFileInfo.toString|toString(){}[0]
+}
+
+final fun <#A: kotlin/Any, #B: kotlin/Any, #C: kotlin/Any> (dev.voir.cache/CacheManager).dev.voir.cache/observePages(dev.voir.cache/CachePagedScope<#A, #B, #C>, #A): kotlinx.coroutines.flow/Flow<dev.voir.cache/CachePagedState<#B, #C>> // dev.voir.cache/observePages|observePages@dev.voir.cache.CacheManager(dev.voir.cache.CachePagedScope<0:0,0:1,0:2>;0:0){0§<kotlin.Any>;1§<kotlin.Any>;2§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any, #B: kotlin/Any, #C: kotlin/Any> dev.voir.cache/createCachePagedScope(kotlin/String, kotlin/Function1<dev.voir.cache/CachePagedScopeBuilder<#A, #B>, kotlin/Unit>, kotlinx.serialization/KSerializer<#A>): dev.voir.cache/CachePagedScope<#A, #B, #C> // dev.voir.cache/createCachePagedScope|createCachePagedScope(kotlin.String;kotlin.Function1<dev.voir.cache.CachePagedScopeBuilder<0:0,0:1>,kotlin.Unit>;kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any>;1§<kotlin.Any>;2§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any, #B: kotlin/Any> (dev.voir.cache/CacheManager).dev.voir.cache/observe(dev.voir.cache/CacheScope<#A, #B>, #A): kotlinx.coroutines.flow/Flow<dev.voir.cache/CacheState<#B>> // dev.voir.cache/observe|observe@dev.voir.cache.CacheManager(dev.voir.cache.CacheScope<0:0,0:1>;0:0){0§<kotlin.Any>;1§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any, #B: kotlin/Any> (dev.voir.cache/CacheManager).dev.voir.cache/observeDirect(#A, kotlinx.serialization/KSerializer<#A>, kotlinx.serialization/KSerializer<#B>, dev.voir.cache/CacheOptions): kotlinx.coroutines.flow/Flow<dev.voir.cache/CacheState<#B>> // dev.voir.cache/observeDirect|observeDirect@dev.voir.cache.CacheManager(0:0;kotlinx.serialization.KSerializer<0:0>;kotlinx.serialization.KSerializer<0:1>;dev.voir.cache.CacheOptions){0§<kotlin.Any>;1§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any, #B: kotlin/Any> dev.voir.cache/createCacheScope(kotlin/String, kotlin/Function1<dev.voir.cache/CacheScopeBuilder<#A>, kotlin/Unit>, kotlinx.serialization/KSerializer<#A>, kotlinx.serialization/KSerializer<#B>): dev.voir.cache/CacheScope<#A, #B> // dev.voir.cache/createCacheScope|createCacheScope(kotlin.String;kotlin.Function1<dev.voir.cache.CacheScopeBuilder<0:0>,kotlin.Unit>;kotlinx.serialization.KSerializer<0:0>;kotlinx.serialization.KSerializer<0:1>){0§<kotlin.Any>;1§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (dev.voir.cache/CacheManager).dev.voir.cache/observeFile(dev.voir.cache/CacheFileScope<#A>, #A): kotlinx.coroutines.flow/Flow<dev.voir.cache/CacheState<dev.voir.cache/CachedFileInfo>> // dev.voir.cache/observeFile|observeFile@dev.voir.cache.CacheManager(dev.voir.cache.CacheFileScope<0:0>;0:0){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (dev.voir.cache/CacheManager).dev.voir.cache/observeFileDirect(#A, kotlinx.serialization/KSerializer<#A>, dev.voir.cache/CacheFileOptions): kotlinx.coroutines.flow/Flow<dev.voir.cache/CacheState<dev.voir.cache/CachedFileInfo>> // dev.voir.cache/observeFileDirect|observeFileDirect@dev.voir.cache.CacheManager(0:0;kotlinx.serialization.KSerializer<0:0>;dev.voir.cache.CacheFileOptions){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> dev.voir.cache/createCacheFileScope(kotlin/String, kotlin/Function1<dev.voir.cache/CacheFileScopeBuilder<#A>, kotlin/Unit>, kotlinx.serialization/KSerializer<#A>): dev.voir.cache/CacheFileScope<#A> // dev.voir.cache/createCacheFileScope|createCacheFileScope(kotlin.String;kotlin.Function1<dev.voir.cache.CacheFileScopeBuilder<0:0>,kotlin.Unit>;kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any>}[0]
+final inline fun <#A: reified kotlin/Any, #B: kotlin/Any, #C: kotlin/Any> dev.voir.cache/cachePagedScope(kotlin/String, noinline kotlin/Function1<dev.voir.cache/CachePagedScopeBuilder<#A, #B>, kotlin/Unit>): dev.voir.cache/CachePagedScope<#A, #B, #C> // dev.voir.cache/cachePagedScope|cachePagedScope(kotlin.String;kotlin.Function1<dev.voir.cache.CachePagedScopeBuilder<0:0,0:1>,kotlin.Unit>){0§<kotlin.Any>;1§<kotlin.Any>;2§<kotlin.Any>}[0]
+final inline fun <#A: reified kotlin/Any, #B: reified kotlin/Any> (dev.voir.cache/CacheManager).dev.voir.cache/observe(#A, dev.voir.cache/CacheOptions = ...): kotlinx.coroutines.flow/Flow<dev.voir.cache/CacheState<#B>> // dev.voir.cache/observe|observe@dev.voir.cache.CacheManager(0:0;dev.voir.cache.CacheOptions){0§<kotlin.Any>;1§<kotlin.Any>}[0]
+final inline fun <#A: reified kotlin/Any, #B: reified kotlin/Any> dev.voir.cache/cacheScope(kotlin/String, noinline kotlin/Function1<dev.voir.cache/CacheScopeBuilder<#A>, kotlin/Unit> = ...): dev.voir.cache/CacheScope<#A, #B> // dev.voir.cache/cacheScope|cacheScope(kotlin.String;kotlin.Function1<dev.voir.cache.CacheScopeBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>;1§<kotlin.Any>}[0]
+final inline fun <#A: reified kotlin/Any> (dev.voir.cache/CacheManager).dev.voir.cache/observeFile(#A, dev.voir.cache/CacheFileOptions = ...): kotlinx.coroutines.flow/Flow<dev.voir.cache/CacheState<dev.voir.cache/CachedFileInfo>> // dev.voir.cache/observeFile|observeFile@dev.voir.cache.CacheManager(0:0;dev.voir.cache.CacheFileOptions){0§<kotlin.Any>}[0]
+final inline fun <#A: reified kotlin/Any> dev.voir.cache/cacheFileScope(kotlin/String, noinline kotlin/Function1<dev.voir.cache/CacheFileScopeBuilder<#A>, kotlin/Unit> = ...): dev.voir.cache/CacheFileScope<#A> // dev.voir.cache/cacheFileScope|cacheFileScope(kotlin.String;kotlin.Function1<dev.voir.cache.CacheFileScopeBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+final suspend fun <#A: kotlin/Any, #B: kotlin/Any, #C: kotlin/Any> (dev.voir.cache/CacheManager).dev.voir.cache/cachePages(dev.voir.cache/CachePagedScope<#A, #B, #C>, #A, dev.voir.cache/CachePages = ..., kotlin.coroutines/SuspendFunction1<#C?, dev.voir.cache/CachePage<#B, #C>>): dev.voir.cache/CachePagedState<#B, #C> // dev.voir.cache/cachePages|cachePages@dev.voir.cache.CacheManager(dev.voir.cache.CachePagedScope<0:0,0:1,0:2>;0:0;dev.voir.cache.CachePages;kotlin.coroutines.SuspendFunction1<0:2?,dev.voir.cache.CachePage<0:1,0:2>>){0§<kotlin.Any>;1§<kotlin.Any>;2§<kotlin.Any>}[0]
+final suspend fun <#A: kotlin/Any, #B: kotlin/Any> (dev.voir.cache/CacheManager).dev.voir.cache/cache(dev.voir.cache/CacheScope<#A, #B>, #A, dev.voir.cache/CacheOverrides = ..., kotlin.coroutines/SuspendFunction0<#B>): #B // dev.voir.cache/cache|cache@dev.voir.cache.CacheManager(dev.voir.cache.CacheScope<0:0,0:1>;0:0;dev.voir.cache.CacheOverrides;kotlin.coroutines.SuspendFunction0<0:1>){0§<kotlin.Any>;1§<kotlin.Any>}[0]
+final suspend fun <#A: kotlin/Any, #B: kotlin/Any> (dev.voir.cache/CacheManager).dev.voir.cache/cacheDirect(#A, kotlinx.serialization/KSerializer<#A>, kotlinx.serialization/KSerializer<#B>, dev.voir.cache/CacheOptions, kotlin.coroutines/SuspendFunction0<#B>): #B // dev.voir.cache/cacheDirect|cacheDirect@dev.voir.cache.CacheManager(0:0;kotlinx.serialization.KSerializer<0:0>;kotlinx.serialization.KSerializer<0:1>;dev.voir.cache.CacheOptions;kotlin.coroutines.SuspendFunction0<0:1>){0§<kotlin.Any>;1§<kotlin.Any>}[0]
+final suspend fun <#A: kotlin/Any> (dev.voir.cache/CacheManager).dev.voir.cache/cacheFile(dev.voir.cache/CacheFileScope<#A>, #A, dev.voir.cache/CacheFileOverrides = ..., kotlin.coroutines/SuspendFunction1<dev.voir.cache/CacheFileSink, kotlin/Unit>): dev.voir.cache/CachedFile // dev.voir.cache/cacheFile|cacheFile@dev.voir.cache.CacheManager(dev.voir.cache.CacheFileScope<0:0>;0:0;dev.voir.cache.CacheFileOverrides;kotlin.coroutines.SuspendFunction1<dev.voir.cache.CacheFileSink,kotlin.Unit>){0§<kotlin.Any>}[0]
+final suspend fun <#A: kotlin/Any> (dev.voir.cache/CacheManager).dev.voir.cache/cacheFileDirect(#A, kotlinx.serialization/KSerializer<#A>, dev.voir.cache/CacheFileOptions, kotlin.coroutines/SuspendFunction1<dev.voir.cache/CacheFileSink, kotlin/Unit>): dev.voir.cache/CachedFile // dev.voir.cache/cacheFileDirect|cacheFileDirect@dev.voir.cache.CacheManager(0:0;kotlinx.serialization.KSerializer<0:0>;dev.voir.cache.CacheFileOptions;kotlin.coroutines.SuspendFunction1<dev.voir.cache.CacheFileSink,kotlin.Unit>){0§<kotlin.Any>}[0]
+final suspend fun dev.voir.cache/CacheManager(kotlinx.coroutines/CoroutineScope, dev.voir.cache/CacheManagerOptions = ...): dev.voir.cache/CacheManager // dev.voir.cache/CacheManager|CacheManager(kotlinx.coroutines.CoroutineScope;dev.voir.cache.CacheManagerOptions){}[0]
+final suspend inline fun <#A: reified kotlin/Any, #B: reified kotlin/Any> (dev.voir.cache/CacheManager).dev.voir.cache/cache(#A, dev.voir.cache/CacheOptions = ..., noinline kotlin.coroutines/SuspendFunction0<#B>): #B // dev.voir.cache/cache|cache@dev.voir.cache.CacheManager(0:0;dev.voir.cache.CacheOptions;kotlin.coroutines.SuspendFunction0<0:1>){0§<kotlin.Any>;1§<kotlin.Any>}[0]
+final suspend inline fun <#A: reified kotlin/Any> (dev.voir.cache/CacheManager).dev.voir.cache/cacheFile(#A, dev.voir.cache/CacheFileOptions = ..., noinline kotlin.coroutines/SuspendFunction1<dev.voir.cache/CacheFileSink, kotlin/Unit>): dev.voir.cache/CachedFile // dev.voir.cache/cacheFile|cacheFile@dev.voir.cache.CacheManager(0:0;dev.voir.cache.CacheFileOptions;kotlin.coroutines.SuspendFunction1<dev.voir.cache.CacheFileSink,kotlin.Unit>){0§<kotlin.Any>}[0]

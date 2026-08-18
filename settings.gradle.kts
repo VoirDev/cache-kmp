@@ -30,8 +30,4 @@ dependencyResolutionManagement {
     }
 }
 
-include(":cache-core")
-include(":cache-room")
-include(":cache-codec-kotlinx")
-include(":cache-testing")
-
+include(":cache")
