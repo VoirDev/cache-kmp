@@ -21,3 +21,4 @@ rootProject.name = "cache-kmp-consumer-samples"
 
 include(":memory-consumer")
 include(":persistent-consumer")
+include(":file-consumer")

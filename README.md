@@ -1,191 +1,13 @@
 # cache-kmp
 
-`cache-kmp` is a typed Kotlin Multiplatform cache library targeting Android, iOS, and JVM. It keeps
-domain models independent from storage, supports bounded memory caching by default, and adds Room
-persistence and kotlinx.serialization only when their focused artifacts are selected.
+`cache-kmp` is one Kotlin Multiplatform cache for Android, iOS, and JVM. One `CacheManager`
+internally owns bounded memory caching, Room-backed persistent values, accumulated page caching,
+streamed file storage, startup recovery, and pruning. Consumers use Kotlinx serialization and never
+initialize a codec, database, file index, or storage adapter.
 
-## Coordinates
+## Install
 
-- Group: `dev.voir`
-- Project: `cache-kmp`
-- Current version: `1.0.0`
-
-Published functionality is split into focused artifacts:
-
-| Artifact | Responsibility |
-| --- | --- |
-| `dev.voir:cache-core` | Cache contracts, engine, memory tier, and persistence SPI |
-| `dev.voir:cache-room` | Generic Room-backed persistent store |
-| `dev.voir:cache-codec-kotlinx` | Optional kotlinx.serialization JSON codec |
-| `dev.voir:cache-testing` | Reusable deterministic test fixtures and fakes |
-
-## In-memory cache
-
-Add only `cache-core` when values should live for the lifetime of the cache manager:
-
-```kotlin
-commonMain.dependencies {
-    implementation("dev.voir:cache-core:1.0.0")
-}
-```
-
-Define a domain key, a value, and a resource. The key encoder controls both isolation and identity:
-
-```kotlin
-import dev.voir.cache.core.createCacheManager
-import dev.voir.cache.core.config.cacheSpec
-import dev.voir.cache.core.key.CacheKeyEncoder
-import dev.voir.cache.core.key.CachePartition
-import dev.voir.cache.core.key.EncodedCacheKey
-import dev.voir.cache.core.model.CacheDiscarded
-import dev.voir.cache.core.model.CacheFailure
-import dev.voir.cache.core.model.CacheSuccess
-import dev.voir.cache.core.policy.ExpireAfter
-import dev.voir.cache.core.policy.MemoryPolicy
-import dev.voir.cache.core.storage.memoryOnly
-import kotlin.time.Duration.Companion.minutes
-
-data class ArticleKey(
-    val accountId: String,
-    val slug: String,
-)
-
-data class Article(
-    val title: String,
-)
-
-data class ArticleError(
-    val message: String,
-)
-
-val manager = createCacheManager(applicationScope.coroutineContext)
-
-val articles = manager.resource(
-    spec = cacheSpec<ArticleKey, Article>(
-        namespace = "articles.v1",
-        key = CacheKeyEncoder { key ->
-            EncodedCacheKey(
-                partition = CachePartition(key.accountId),
-                value = key.slug,
-            )
-        },
-        freshness = ExpireAfter(5.minutes),
-        storage = memoryOnly(),
-        memory = MemoryPolicy(maxEntries = 100),
-    ),
-    fetch = { key: ArticleKey -> loadArticle(key) },
-    mapUnexpectedFailure = { throwable ->
-        ArticleError(throwable.message ?: "Unexpected source failure")
-    },
-)
-```
-
-Here, `applicationScope` is the long-lived scope that owns the cache and `loadArticle` is the
-application's source function. It returns `FetchResult<Article, ArticleError>`, so expected source
-failures remain typed. Read and refresh the resource from a coroutine:
-
-```kotlin
-val key = ArticleKey("account-1", "cache-design")
-
-when (val result = articles.get(key)) {
-    is CacheSuccess -> showArticle(result.value)
-    is CacheFailure -> {
-        result.staleValue?.let(::showArticle)
-        showError(result.error)
-    }
-    is CacheDiscarded -> render(result.currentSnapshot)
-}
-
-articles.refresh(key)           // Always asks the source for a newer value.
-val memory = articles.peek(key)  // Reads memory without disk hydration or source loading.
-val current = articles.current(key) // Awaits disk hydration but never invokes the source.
-val states = articles.observe(key) // May hydrate from disk; never invokes the source.
-articles.invalidate(key)        // Retains the value but marks it stale.
-articles.remove(key)            // Removes exactly one cached address.
-manager.clear(CachePartition("account-1"))
-manager.close()                 // Call when the owning application/session scope ends.
-```
-
-For a restartable JVM/DI host, use `RestartableCacheManagerOwner` and await its `stop()` before
-cancelling the owning scope. See [lifecycle ownership](docs/lifecycle.md) for the complete concurrent
-shutdown contract and the safe Koin boundary.
-
-Concurrent `get` calls for the same address share one source request. Fresh values are returned
-without calling the source, and the least recently used unobserved entries are evicted when
-`maxEntries` is reached.
-
-A source completion rejected by a newer mutation or clear returns `CacheDiscarded`. Its
-`currentSnapshot` is authoritative; a rejected source value is never returned as committed state.
-
-Persistent managers accept a `PersistentRetentionPolicy` through `CacheManagerConfig`. Hosts call
-`prune()` when appropriate and can inspect sanitized occupancy through `storageStatistics()`.
-Retention supports expiration grace, namespace and whole-store row bounds, and an encoded-payload
-byte bound; the library does not schedule maintenance itself.
-
-Optional diagnostics provide ordered correlated operation events with sanitized outcomes, timing,
-single-flight status, eviction causes, and occupancy. `manager.statistics()` exposes the same
-manager-level aggregate even when no event listener is configured.
-
-Resources with composite keys can declare a typed family boundary. Family operations use exact
-namespace, partition, and encoded-family metadata—never string-prefix matching:
-
-```kotlin
-data class CommandKey(val accountId: String, val commandId: String)
-data class AccountFamily(val accountId: String)
-
-val commands = manager.resource(
-    spec = familyCacheSpec<CommandKey, AccountFamily, Command>(
-        namespace = "commands.v1",
-        key = { key -> EncodedCacheKey(CachePartition(key.accountId), key.commandId) },
-        familyOf = { key -> AccountFamily(key.accountId) },
-        family = { value ->
-            EncodedCacheFamily(CachePartition(value.accountId), "commands")
-        },
-        freshness = ExpireAfter(5.minutes),
-        storage = memoryOnly(),
-        memory = MemoryPolicy(maxEntries = 100),
-    ),
-    fetch = ::loadCommand,
-    mapUnexpectedFailure = ::mapCommandError,
-)
-
-commands.invalidateFamily(AccountFamily("account-1"))
-commands.removeFamily(AccountFamily("account-1"))
-```
-
-Accumulated pagination uses a separate bounded memory-only resource. The cache owns initial,
-refresh, and append source coordination instead of requiring a consumer-side `update()` race:
-
-```kotlin
-val search = manager.pagedResource(
-    spec = pagedCacheSpec<SearchQuery, String, SearchItem, String>(
-        namespace = "search.v1",
-        query = { query -> EncodedCacheKey(CachePartition(query.accountId), query.text) },
-        itemId = SearchItem::id,
-        freshness = ExpireAfter(5.minutes),
-        memory = PagedMemoryPolicy(
-            maxQueries = 10,
-            maxPagesPerQuery = 20,
-            maxItemsPerQuery = 500,
-            maxTotalItems = 2_000,
-        ),
-    ),
-    fetch = { request -> searchApi.load(request.query, request.cursor) },
-    mapUnexpectedFailure = ::mapSearchError,
-)
-
-search.ensureLoaded(query)
-search.loadNext(query)
-search.refresh(query)
-```
-
-Paged persistence is not part of the current contract; paged entries are process-memory session
-state with explicit finite bounds.
-
-## Room-backed cache
-
-Add Room persistence and a codec alongside the core artifact. Apply the Kotlin serialization plugin
-when using `@Serializable` values:
+Version `1.0.0` is published as one artifact:
 
 ```kotlin
 plugins {
@@ -196,114 +18,326 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("dev.voir:cache-core:1.0.0")
-            implementation("dev.voir:cache-room:1.0.0")
-            implementation("dev.voir:cache-codec-kotlinx:1.0.0")
+            implementation("dev.voir:cache:1.0.0")
         }
     }
 }
 ```
 
-Create one Room store in platform code and give it to the manager. The manager owns the store and
-closes it when `manager.close()` is called:
+Custom keys and values must be serializable:
 
 ```kotlin
-// Android
-@OptIn(ExperimentalCacheStoreApi::class)
-val store = createAndroidRoomPersistentCacheStore(
-    context = applicationContext,
-    databaseName = "cache.db",
-)
-
-// JVM
-@OptIn(ExperimentalCacheStoreApi::class)
-val store = createJvmRoomPersistentCacheStore(databasePath)
-
-// iOS; choose an absolute path in Application Support or Documents.
-@OptIn(ExperimentalCacheStoreApi::class)
-val store = createIosRoomPersistentCacheStore(absoluteDatabasePath)
-```
-
-Register a serializable resource in shared code with an explicit payload version:
-
-```kotlin
-import dev.voir.cache.codec.kotlinx.KotlinxJsonCacheCodec
-import dev.voir.cache.core.createCacheManager
-import dev.voir.cache.core.config.cacheSpec
-import dev.voir.cache.core.key.CacheKeyEncoder
-import dev.voir.cache.core.key.CachePartition
-import dev.voir.cache.core.key.EncodedCacheKey
-import dev.voir.cache.core.persistence.ExperimentalCacheStoreApi
-import dev.voir.cache.core.policy.ExpireAfter
-import dev.voir.cache.core.policy.MemoryPolicy
-import dev.voir.cache.core.storage.persistent
 import kotlinx.serialization.Serializable
-import kotlin.time.Duration.Companion.minutes
-
-data class ProfileKey(
-    val accountId: String,
-)
 
 @Serializable
-data class Profile(
-    val displayName: String,
+data class ProfileKey(val accountId: String)
+
+@Serializable
+data class Profile(val displayName: String)
+```
+
+Primitive and standard Kotlin types with built-in serializers work without annotations.
+
+## Create one manager
+
+Manager creation is suspending because persistent stores are opened and recovered before the
+manager is returned. Use a long-lived application or session `CoroutineScope`.
+
+```kotlin
+// Android: storage is selected below the application context.
+val cache = CacheManager(
+    context = applicationContext,
+    scope = applicationScope,
 )
 
-data class ProfileError(
-    val message: String,
+// JVM: rootDirectory must be an absolute, application-owned directory.
+val cache = CacheManager(
+    rootDirectory = cacheRoot.toAbsolutePath(),
+    scope = applicationScope,
 )
 
-@OptIn(ExperimentalCacheStoreApi::class)
-val manager = createCacheManager(
-    coroutineContext = applicationScope.coroutineContext,
-    persistentStore = store,
-)
+// iOS: storage is selected below the system caches directory.
+val cache = CacheManager(scope = applicationScope)
+```
 
-val profiles = manager.resource(
-    spec = cacheSpec<ProfileKey, Profile>(
-        namespace = "profiles.v1",
-        key = CacheKeyEncoder { key ->
-            EncodedCacheKey(
-                partition = CachePartition(key.accountId),
-                value = key.accountId,
-            )
-        },
-        freshness = ExpireAfter(30.minutes),
-        storage = persistent(
-            codec = KotlinxJsonCacheCodec(
-                serializer = Profile.serializer(),
-                currentVersion = 1,
-            ),
-        ),
-        memory = MemoryPolicy(maxEntries = 100),
+All storage initialization and maintenance are internal. `CacheManagerOptions` is only needed to
+change whole-manager persistent or file limits.
+
+## Direct caching
+
+For a one-off or locally configured cache, call `cache` directly. Memory is the default:
+
+```kotlin
+val article = cache.cache(key = articleId) {
+    api.loadArticle(articleId)
+}
+```
+
+Add `CacheOptions` when identity or policy must be explicit:
+
+```kotlin
+import dev.voir.cache.CacheOptions
+import dev.voir.cache.CacheStorage
+import dev.voir.cache.cache
+import kotlin.time.Duration.Companion.minutes
+
+val profile = cache.cache(
+    key = ProfileKey(accountId),
+    options = CacheOptions(
+        namespace = "profiles",
+        partition = accountId,
+        storage = CacheStorage.PERSISTENT,
+        expiresAfter = 30.minutes,
+        maxMemoryEntries = 100,
+        maxPayloadBytes = 1_048_576,
     ),
-    fetch = { key: ProfileKey -> loadProfile(key) },
-    mapUnexpectedFailure = { throwable ->
-        ProfileError(throwable.message ?: "Unexpected source failure")
-    },
+) {
+    api.loadProfile(accountId)
+}
+```
+
+Keys and values are encoded internally with Kotlinx serialization. A persistent value is restored
+after manager recreation without invoking the loader while the stored entry remains fresh.
+
+When `namespace` is omitted, `cache` derives one from the serialized value type. Specify a stable,
+unique namespace whenever the same value type represents more than one logical cache.
+
+## Reusable scopes
+
+A scope keeps identity, limits, expiration, storage, and partitioning in one reusable declaration:
+
+```kotlin
+import dev.voir.cache.CacheOverrides
+import dev.voir.cache.CacheStorage
+import dev.voir.cache.cache
+import dev.voir.cache.cacheScope
+import kotlin.time.Duration.Companion.minutes
+
+val profiles = cacheScope<ProfileKey, Profile>("profiles") {
+    storage = CacheStorage.PERSISTENT
+    expiresAfter = 30.minutes
+    maxMemoryEntries = 100
+    maxPayloadBytes = 1_048_576
+    partitionBy { it.accountId }
+}
+
+val profile = cache.cache(profiles, ProfileKey(accountId)) {
+    api.loadProfile(accountId)
+}
+
+val shortLivedProfile = cache.cache(
+    scope = profiles,
+    key = ProfileKey(accountId),
+    overrides = CacheOverrides(expiresAfter = 5.minutes),
+) {
+    api.loadProfile(accountId)
+}
+```
+
+Per-call overrides can change expiration, refresh behavior, and stale-on-error fallback without
+redeclaring the scope. Storage and capacity limits remain stable for the namespace.
+
+## Paged caching
+
+`cachePages` accumulates cursor-paginated results for one query into a single deduplicated list:
+
+```kotlin
+import dev.voir.cache.CachePage
+import dev.voir.cache.CachePages
+import dev.voir.cache.cachePagedScope
+import dev.voir.cache.cachePages
+import kotlin.time.Duration.Companion.minutes
+
+val feed = cachePagedScope<FeedQuery, Article, String>("feed") {
+    expiresAfter = 5.minutes
+    maxPages = 20
+    maxItemsPerQuery = 500
+    identifyBy { article -> article.id }
+    partitionBy { query -> query.accountId }
+}
+
+suspend fun articles(request: CachePages = CachePages.IF_NEEDED) =
+    cache.cachePages(feed, FeedQuery(accountId, "latest"), request) { cursor ->
+        val response = api.loadArticles(cursor)
+        CachePage(response.articles, nextCursor = response.nextCursor)
+    }
+
+val first = articles()                       // loads page one when absent or stale
+val more = articles(CachePages.NEXT)         // appends the next page
+val reloaded = articles(CachePages.REFRESH)  // reloads page one, drops later pages
+```
+
+A refresh discards later pages on purpose. Their cursors were produced while the first page held
+different contents, so keeping them would repeat or skip items. Appends merge by the identity given
+to `identifyBy`, so an overlapping page cannot duplicate an item already shown. `observePages`
+exposes the same accumulated state as a cold `Flow`.
+
+Accumulated pages are process memory only. See [Paged caching](docs/paged-caching.md) for the
+complete contract.
+
+## File caching
+
+`cacheFile` streams bytes into cache-owned staging without loading the complete file into memory:
+
+```kotlin
+import dev.voir.cache.CacheFileOptions
+import dev.voir.cache.cacheFile
+import kotlin.time.Duration.Companion.days
+
+val avatar = cache.cacheFile(
+    key = ProfileKey(accountId),
+    options = CacheFileOptions(
+        namespace = "avatars",
+        partition = accountId,
+        expiresAfter = 1.days,
+        maxEntryBytes = 10L * 1_024 * 1_024,
+        maxEntries = 500,
+        maxBytes = 200L * 1_024 * 1_024,
+        mediaType = "image/jpeg",
+    ),
+) { sink ->
+    api.downloadAvatar(accountId, sink)
+}
+
+try {
+    imageLoader.open(avatar.path)
+} finally {
+    avatar.close()
+}
+```
+
+The returned `CachedFile` is a lease. Its absolute path remains valid until suspending `close()`
+completes. File scopes are available for repeated policy:
+
+```kotlin
+val avatars = cacheFileScope<ProfileKey>("avatars") {
+    expiresAfter = 1.days
+    maxEntryBytes = 10L * 1_024 * 1_024
+    maxEntries = 500
+    maxBytes = 200L * 1_024 * 1_024
+    mediaType = "image/jpeg"
+    partitionBy { it.accountId }
+}
+
+val avatar = cache.cacheFile(avatars, ProfileKey(accountId)) { sink ->
+    api.downloadAvatar(accountId, sink)
+}
+```
+
+## Observe cache changes
+
+`observe` exposes a cold `Flow<CacheState<V>>` for memory and persistent values. It emits the
+current state immediately and then emits whenever the same manager changes that address:
+
+```kotlin
+import dev.voir.cache.CacheState
+import dev.voir.cache.observe
+import kotlinx.coroutines.flow.Flow
+
+val profileStates: Flow<CacheState<Profile>> = cache.observe(
+    scope = profiles,
+    key = ProfileKey(accountId),
+)
+
+profileStates.collect { state ->
+    renderProfile(
+        profile = state.value,
+        loading = state.isLoading,
+        stale = state.isStale,
+        error = state.refreshError,
+    )
+}
+```
+
+Observation does not invoke a loader. Keep loading and refreshing explicit with `cache`; every
+active observer sees its progress and committed result:
+
+```kotlin
+suspend fun refreshProfile() {
+    cache.cache(
+        scope = profiles,
+        key = ProfileKey(accountId),
+        overrides = CacheOverrides(refresh = CacheRefresh.ALWAYS),
+    ) {
+        api.loadProfile(accountId)
+    }
+}
+```
+
+Direct observation uses the same options and inferred serializers as direct caching:
+
+```kotlin
+val states: Flow<CacheState<Profile>> = cache.observe(
+    key = ProfileKey(accountId),
+    options = CacheOptions(
+        namespace = "profiles",
+        partition = accountId,
+        storage = CacheStorage.PERSISTENT,
+    ),
 )
 ```
 
-The first `profiles.get(key)` checks memory, then Room, and finally the source if no fresh cached
-value exists. After an application restart, a new manager using the same database can restore the
-Room value before calling the source. Writes, updates, invalidation, removal, partition clearing,
-and pruning are applied to both tiers.
+Persistent observation first emits process-local state, then reports hydration and emits restored
+disk data without calling the source. `CacheState` distinguishes absent, fresh, and stale data;
+reports idle, hydration, and refresh activity; and includes validation timestamps and the latest
+loader error.
 
-Use a stable namespace and key encoding after release. When the serialized payload shape changes,
-increment `currentVersion` and provide an explicit migration; see
-[payload and Room migrations](docs/migrations.md). For full lifecycle and behavior details,
-continue with the [five-minute setup guide](docs/getting-started.md) and
-[guarantees and limitations](docs/guarantees-and-limitations.md).
+Use `observeFile` for file-cache changes. It emits safe `CachedFileInfo` metadata rather than an
+unleased path. Acquire and close a `CachedFile` whenever content must be read:
+
+```kotlin
+cache.observeFile(avatars, ProfileKey(accountId)).collect { state ->
+    renderAvatarStatus(
+        available = state.hasValue,
+        loading = state.isLoading,
+        sizeBytes = state.value?.sizeBytes,
+    )
+}
+
+suspend fun openAvatar() {
+    val file = cache.cacheFile(avatars, ProfileKey(accountId)) { sink ->
+        api.downloadAvatar(accountId, sink)
+    }
+    try {
+        imageLoader.open(file.path)
+    } finally {
+        file.close()
+    }
+}
+```
+
+See [Observing cache state](docs/observation.md) for UI `StateFlow` usage and the complete
+observation contract.
+
+## Request behavior
+
+- `CacheRefresh.IF_NEEDED` reuses a fresh entry and loads only when absent or stale.
+- `CacheRefresh.ALWAYS` always invokes the loader and commits the successful result.
+- Concurrent requests for the same serialized namespace, partition, and key share one loader.
+- Loader exceptions are rethrown. When stale data exists and `useStaleOnError` is `true`, that data
+  is returned instead.
+- A namespace cannot be reused in one manager with different key/value types, storage, or stable
+  limits; incompatible configuration fails immediately.
+- Accumulated pages deduplicate by item identity, and reloading the first page discards later
+  pages addressed by superseded cursors.
+- `clearAll()` clears every memory value, persistent value, accumulated page, and file owned by the
+  manager.
+- `close()` is idempotent and closes every internally owned backend.
+
+Cached data is disposable acceleration, not an authoritative offline database. The library does
+not provide networking, retries, encryption, image decoding, or background scheduling.
 
 ## Documentation
 
-- [Getting started and lifecycle](docs/getting-started.md)
-- [Lifecycle ownership and restartable hosts](docs/lifecycle.md)
-- [Failure, cancellation, security, and consistency guarantees](docs/guarantees-and-limitations.md)
-- [Testing utilities](docs/testing.md)
-- [Diagnostics and operation statistics](docs/diagnostics.md)
-- [Payload and Room migrations](docs/migrations.md)
-- [Compatibility matrix](docs/compatibility.md)
+- [Getting started](docs/getting-started.md)
+- [Observing cache state](docs/observation.md)
+- [Paged caching](docs/paged-caching.md)
+- [Guarantees and limitations](docs/guarantees-and-limitations.md)
+- [File-cache contract](docs/file-cache-contract.md)
+- [Lifecycle ownership](docs/lifecycle.md)
+- [Serialized-data changes](docs/migrations.md)
+- [Testing](docs/testing.md)
+- [Compatibility](docs/compatibility.md)
 - [Versioning and publishing](docs/versioning-and-publishing.md)
 
 ## Build from source
@@ -312,9 +346,8 @@ continue with the [five-minute setup guide](docs/getting-started.md) and
 ./gradlew build
 ```
 
-The repository also contains [consumer samples](samples/consumer) that resolve the locally published
-artifacts instead of depending directly on the Gradle projects. Release and ABI verification commands
-are documented in the [versioning and publishing guide](docs/versioning-and-publishing.md).
+The [standalone consumers](samples/consumer) resolve the locally published `dev.voir:cache` artifact
+rather than depending on project internals.
 
 ## License
 

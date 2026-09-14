@@ -1,0 +1,244 @@
+package dev.voir.cache.room.internal.dao
+
+import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.Query
+import androidx.room3.Transaction
+import dev.voir.cache.room.internal.entity.CacheEntryEntity
+
+/** Room access point for generic persistent cache rows. */
+@Dao
+internal abstract class CacheEntryDao {
+    /**
+     * Reads the row at an exact address.
+     *
+     * @param namespace Resource namespace.
+     * @param partition Isolation partition.
+     * @param cacheKey Encoded key within the partition.
+     * @return Matching row, or `null` when absent.
+     */
+    @Query(
+        """
+        SELECT * FROM cache_entry
+        WHERE namespace = :namespace AND partition = :partition AND cache_key = :cacheKey
+        """
+    )
+    abstract suspend fun select(
+        namespace: String,
+        partition: String,
+        cacheKey: String,
+    ): CacheEntryEntity?
+
+    /**
+     * Inserts or atomically replaces [entry].
+     *
+     * @param entry Complete row to persist.
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun upsert(entry: CacheEntryEntity)
+
+    /**
+     * Removes the row at an exact address.
+     *
+     * @param namespace Resource namespace.
+     * @param partition Isolation partition.
+     * @param cacheKey Encoded key within the partition.
+     */
+    @Query(
+        """
+        DELETE FROM cache_entry
+        WHERE namespace = :namespace AND partition = :partition AND cache_key = :cacheKey
+        """
+    )
+    abstract suspend fun delete(namespace: String, partition: String, cacheKey: String)
+
+    /** Removes every row owned by this database. */
+    @Query("DELETE FROM cache_entry")
+    abstract suspend fun deleteAll()
+
+    /** Counts expired rows and bytes without reading their payloads into application memory. */
+    @Query(
+        """
+        SELECT COUNT(*) AS rowCount,
+               COALESCE(SUM(LENGTH(payload)), 0) AS payloadBytes
+        FROM cache_entry
+        WHERE expires_at_epoch_seconds IS NOT NULL
+          AND expires_at_nanoseconds IS NOT NULL
+          AND (
+              expires_at_epoch_seconds < :epochSeconds
+              OR (
+                  expires_at_epoch_seconds = :epochSeconds
+                  AND expires_at_nanoseconds < :nanoseconds
+              )
+          )
+        """
+    )
+    protected abstract suspend fun expiredAggregate(
+        epochSeconds: Long,
+        nanoseconds: Int,
+    ): CacheStorageAggregate
+
+    /** Deletes expired rows entirely inside SQLite. */
+    @Query(
+        """
+        DELETE FROM cache_entry
+        WHERE expires_at_epoch_seconds IS NOT NULL
+          AND expires_at_nanoseconds IS NOT NULL
+          AND (
+              expires_at_epoch_seconds < :epochSeconds
+              OR (
+                  expires_at_epoch_seconds = :epochSeconds
+                  AND expires_at_nanoseconds < :nanoseconds
+              )
+          )
+        """
+    )
+    protected abstract suspend fun deleteExpired(epochSeconds: Long, nanoseconds: Int): Int
+
+    /** Counts rows outside the whole-store most-recent prefix. */
+    @Query(
+        """
+        SELECT COUNT(*) AS rowCount,
+               COALESCE(SUM(payloadBytes), 0) AS payloadBytes
+        FROM (
+            SELECT LENGTH(payload) AS payloadBytes,
+                   ROW_NUMBER() OVER (
+                       ORDER BY last_accessed_at_epoch_seconds DESC,
+                                last_accessed_at_nanoseconds DESC,
+                                written_at_epoch_seconds DESC,
+                                written_at_nanoseconds DESC,
+                                namespace ASC,
+                                partition ASC,
+                                cache_key ASC
+                   ) AS retentionRank
+            FROM cache_entry
+        )
+        WHERE retentionRank > :maxTotalEntries
+        """
+    )
+    protected abstract suspend fun totalEntryOverflowAggregate(
+        maxTotalEntries: Int,
+    ): CacheStorageAggregate
+
+    /** Deletes rows outside the whole-store most-recent prefix. */
+    @Query(
+        """
+        DELETE FROM cache_entry
+        WHERE rowid IN (
+            SELECT retainedRowId
+            FROM (
+                SELECT rowid AS retainedRowId,
+                       ROW_NUMBER() OVER (
+                           ORDER BY last_accessed_at_epoch_seconds DESC,
+                                    last_accessed_at_nanoseconds DESC,
+                                    written_at_epoch_seconds DESC,
+                                    written_at_nanoseconds DESC,
+                                    namespace ASC,
+                                    partition ASC,
+                                    cache_key ASC
+                       ) AS retentionRank
+                FROM cache_entry
+            )
+            WHERE retentionRank > :maxTotalEntries
+        )
+        """
+    )
+    protected abstract suspend fun deleteTotalEntryOverflow(maxTotalEntries: Int): Int
+
+    /** Counts the least-recent suffix beyond the cumulative payload-byte bound. */
+    @Query(
+        """
+        SELECT COUNT(*) AS rowCount,
+               COALESCE(SUM(payloadBytes), 0) AS payloadBytes
+        FROM (
+            SELECT LENGTH(payload) AS payloadBytes,
+                   SUM(LENGTH(payload)) OVER (
+                       ORDER BY last_accessed_at_epoch_seconds DESC,
+                                last_accessed_at_nanoseconds DESC,
+                                written_at_epoch_seconds DESC,
+                                written_at_nanoseconds DESC,
+                                namespace ASC,
+                                partition ASC,
+                                cache_key ASC
+                       ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+                   ) AS cumulativePayloadBytes
+            FROM cache_entry
+        )
+        WHERE cumulativePayloadBytes > :maxTotalPayloadBytes
+        """
+    )
+    protected abstract suspend fun payloadOverflowAggregate(
+        maxTotalPayloadBytes: Long,
+    ): CacheStorageAggregate
+
+    /** Deletes the least-recent suffix beyond the cumulative payload-byte bound. */
+    @Query(
+        """
+        DELETE FROM cache_entry
+        WHERE rowid IN (
+            SELECT retainedRowId
+            FROM (
+                SELECT rowid AS retainedRowId,
+                       SUM(LENGTH(payload)) OVER (
+                           ORDER BY last_accessed_at_epoch_seconds DESC,
+                                    last_accessed_at_nanoseconds DESC,
+                                    written_at_epoch_seconds DESC,
+                                    written_at_nanoseconds DESC,
+                                    namespace ASC,
+                                    partition ASC,
+                                    cache_key ASC
+                           ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+                       ) AS cumulativePayloadBytes
+                FROM cache_entry
+            )
+            WHERE cumulativePayloadBytes > :maxTotalPayloadBytes
+        )
+        """
+    )
+    protected abstract suspend fun deletePayloadOverflow(maxTotalPayloadBytes: Long): Int
+
+    /**
+     * Applies all retention limits in one writer transaction without materializing payload rows.
+     *
+     * @param expiredBeforeEpochSeconds Optional expiration cutoff epoch-second component.
+     * @param expiredBeforeNanoseconds Optional expiration cutoff nanosecond component.
+     * @param maxTotalEntries Optional maximum retained rows for the complete store.
+     * @param maxTotalPayloadBytes Optional encoded-payload byte bound for the complete store.
+     * @return Exact aggregate removed by this maintenance pass.
+     */
+    @Transaction
+    open suspend fun prune(
+        expiredBeforeEpochSeconds: Long?,
+        expiredBeforeNanoseconds: Int?,
+        maxTotalEntries: Int?,
+        maxTotalPayloadBytes: Long?,
+    ): CacheStorageAggregate {
+        var removedRows = 0L
+        var removedBytes = 0L
+
+        suspend fun remove(aggregate: CacheStorageAggregate, operation: suspend () -> Int) {
+            if (aggregate.rowCount == 0L) return
+            operation()
+            removedRows += aggregate.rowCount
+            removedBytes += aggregate.payloadBytes
+        }
+
+        if (expiredBeforeEpochSeconds != null && expiredBeforeNanoseconds != null) {
+            remove(expiredAggregate(expiredBeforeEpochSeconds, expiredBeforeNanoseconds)) {
+                deleteExpired(expiredBeforeEpochSeconds, expiredBeforeNanoseconds)
+            }
+        }
+        if (maxTotalEntries != null) {
+            remove(totalEntryOverflowAggregate(maxTotalEntries)) {
+                deleteTotalEntryOverflow(maxTotalEntries)
+            }
+        }
+        if (maxTotalPayloadBytes != null) {
+            remove(payloadOverflowAggregate(maxTotalPayloadBytes)) {
+                deletePayloadOverflow(maxTotalPayloadBytes)
+            }
+        }
+        return CacheStorageAggregate(removedRows, removedBytes)
+    }
+}

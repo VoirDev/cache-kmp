@@ -15,9 +15,7 @@ kotlin {
 }
 
 dependencies {
-    implementation("dev.voir:cache-core:${cacheVersion.get()}")
-    implementation("dev.voir:cache-room:${cacheVersion.get()}")
-    implementation("dev.voir:cache-codec-kotlinx:${cacheVersion.get()}")
+    implementation("dev.voir:cache:${cacheVersion.get()}")
     testImplementation(kotlin("test"))
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0")
 }

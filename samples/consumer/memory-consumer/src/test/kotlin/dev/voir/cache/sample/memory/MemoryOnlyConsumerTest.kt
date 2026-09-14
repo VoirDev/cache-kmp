@@ -1,55 +1,42 @@
 package dev.voir.cache.sample.memory
 
-import dev.voir.cache.core.createCacheManager
-import dev.voir.cache.core.config.cacheSpec
-import dev.voir.cache.core.key.CacheKeyEncoder
-import dev.voir.cache.core.key.CachePartition
-import dev.voir.cache.core.key.EncodedCacheKey
-import dev.voir.cache.core.model.CacheSuccess
-import dev.voir.cache.core.model.FetchSuccess
-import dev.voir.cache.core.policy.ExpireAfter
-import dev.voir.cache.core.policy.MemoryPolicy
-import dev.voir.cache.core.storage.memoryOnly
+import dev.voir.cache.CacheManager
+import dev.voir.cache.cache
+import dev.voir.cache.cacheScope
 import kotlinx.coroutines.test.runTest
+import kotlin.io.path.createTempDirectory
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
 import kotlin.time.Duration.Companion.minutes
 
-/** Demonstrates a domain using `cache-core` directly without an application cache facade. */
+/** Demonstrates reusable, typed, memory-only caching through the unified facade. */
 class MemoryOnlyConsumerTest {
-    /** Verifies a domain key and value can use the memory-only artifact directly. */
     @Test
-    fun `domain uses cache core directly without a facade`() = runTest {
+    fun `domain reuses one memory scope`() = runTest {
+        val root = createTempDirectory("cache-kmp-memory-consumer-")
         var sourceCalls = 0
-        val manager = createCacheManager(coroutineContext)
-        val articles = manager.resource(
-            spec = cacheSpec<ArticleKey, Article>(
-                namespace = "sample.articles",
-                key = CacheKeyEncoder { key ->
-                    EncodedCacheKey(
-                        partition = CachePartition(key.accountId),
-                        value = key.slug,
-                    )
-                },
-                freshness = ExpireAfter(5.minutes),
-                storage = memoryOnly(),
-                memory = MemoryPolicy(maxEntries = 100),
-            ),
-            fetch = { key ->
+        val manager = CacheManager(rootDirectory = root, scope = this)
+        try {
+            val articles = cacheScope<ArticleKey, Article>("sample.articles") {
+                expiresAfter = 5.minutes
+                maxMemoryEntries = 100
+                partitionBy { it.accountId }
+            }
+            val key = ArticleKey(accountId = "account-1", slug = "cache-design")
+            val load = suspend {
                 sourceCalls += 1
-                FetchSuccess(Article(title = "Article ${key.slug}"))
-            },
-            mapUnexpectedFailure = { throwable -> throwable.message ?: "Unexpected source failure" },
-        )
+                Article(title = "Article ${key.slug}")
+            }
 
-        val key = ArticleKey(accountId = "account-1", slug = "cache-design")
-        val first = assertIs<CacheSuccess<Article>>(articles.get(key))
-        val second = assertIs<CacheSuccess<Article>>(articles.get(key))
+            val first = manager.cache(articles, key, load = load)
+            val second = manager.cache(articles, key, load = load)
 
-        assertEquals("Article cache-design", first.value.title)
-        assertEquals(first.value, second.value)
-        assertEquals(1, sourceCalls)
-        manager.close()
+            assertEquals("Article cache-design", first.title)
+            assertEquals(first, second)
+            assertEquals(1, sourceCalls)
+        } finally {
+            manager.close()
+            root.toFile().deleteRecursively()
+        }
     }
 }

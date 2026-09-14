@@ -1,0 +1,125 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "2efeb67b3b4b418aa7cf3e538379d102",
+    "entities": [
+      {
+        "tableName": "cache_entry",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`namespace` TEXT NOT NULL, `partition` TEXT NOT NULL, `cache_key` TEXT NOT NULL, `payload` BLOB NOT NULL, `payload_version` INTEGER NOT NULL, `validated_at_epoch_seconds` INTEGER NOT NULL, `validated_at_nanoseconds` INTEGER NOT NULL, `expires_at_epoch_seconds` INTEGER, `expires_at_nanoseconds` INTEGER, `written_at_epoch_seconds` INTEGER NOT NULL, `written_at_nanoseconds` INTEGER NOT NULL, `last_accessed_at_epoch_seconds` INTEGER NOT NULL, `last_accessed_at_nanoseconds` INTEGER NOT NULL, PRIMARY KEY(`namespace`, `partition`, `cache_key`))",
+        "fields": [
+          {
+            "fieldPath": "namespace",
+            "columnName": "namespace",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "partition",
+            "columnName": "partition",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cacheKey",
+            "columnName": "cache_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "payload",
+            "columnName": "payload",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "payloadVersion",
+            "columnName": "payload_version",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "validatedAtEpochSeconds",
+            "columnName": "validated_at_epoch_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "validatedAtNanoseconds",
+            "columnName": "validated_at_nanoseconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expiresAtEpochSeconds",
+            "columnName": "expires_at_epoch_seconds",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "expiresAtNanoseconds",
+            "columnName": "expires_at_nanoseconds",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "writtenAtEpochSeconds",
+            "columnName": "written_at_epoch_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "writtenAtNanoseconds",
+            "columnName": "written_at_nanoseconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastAccessedAtEpochSeconds",
+            "columnName": "last_accessed_at_epoch_seconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastAccessedAtNanoseconds",
+            "columnName": "last_accessed_at_nanoseconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "namespace",
+            "partition",
+            "cache_key"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_cache_entry_expires_at_epoch_seconds_expires_at_nanoseconds",
+            "unique": false,
+            "columnNames": [
+              "expires_at_epoch_seconds",
+              "expires_at_nanoseconds"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_cache_entry_expires_at_epoch_seconds_expires_at_nanoseconds` ON `${TABLE_NAME}` (`expires_at_epoch_seconds`, `expires_at_nanoseconds`)"
+          },
+          {
+            "name": "index_cache_entry_last_accessed_at_epoch_seconds_last_accessed_at_nanoseconds",
+            "unique": false,
+            "columnNames": [
+              "last_accessed_at_epoch_seconds",
+              "last_accessed_at_nanoseconds"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_cache_entry_last_accessed_at_epoch_seconds_last_accessed_at_nanoseconds` ON `${TABLE_NAME}` (`last_accessed_at_epoch_seconds`, `last_accessed_at_nanoseconds`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2efeb67b3b4b418aa7cf3e538379d102')"
+    ]
+  }
+}

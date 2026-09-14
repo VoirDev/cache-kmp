@@ -128,7 +128,7 @@ jobs:
             echo
             echo "## Publish"
             echo
-            echo "After this PR is merged, this workflow publishes the cache-kmp modules at ${RELEASE_VERSION} to Maven Central, pushes tag v${RELEASE_VERSION}, and creates a GitHub release using these notes."
+            echo "After this PR is merged, this workflow publishes cache-kmp ${RELEASE_VERSION} to Maven Central, pushes tag v${RELEASE_VERSION}, and creates a GitHub release using these notes."
           } >> "$notes_file"
 
           echo "path=${notes_file}" >> "$GITHUB_OUTPUT"
@@ -299,7 +299,7 @@ jobs:
           publishAllPublicationsToLocalReleaseRepository
           --console=plain
 
-      - name: Verify published consumers and dependency isolation
+      - name: Verify published consumers
         run: >-
           ./gradlew
           -p samples/consumer

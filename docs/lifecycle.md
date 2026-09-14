@@ -1,70 +1,49 @@
 # Lifecycle ownership
 
-`CacheManager` owns its supervisor job, registered resources, memory state, diagnostic delivery, and
-optional persistent store. Its lifecycle is terminal: create a new manager instead of trying to
-reopen one that has begun closing.
+Create one `CacheManager` for a long-lived application or session scope. The manager owns all cache
+memory, Room databases, file storage, source coordination, recovery, and pruning behind the public
+facade.
 
-## Process-lifetime mobile owner
+## Platform ownership
 
-For the usual mobile application model, create one manager from an application-owned coroutine
-context and keep it for the process lifetime. Do not tie it to an Activity, ViewController,
-navigation graph, or another short-lived UI scope.
+- Android accepts a `Context` and resolves storage from its application context.
+- iOS uses the application's system caches directory.
+- JVM accepts an absolute application-owned root and creates only a `cache-kmp` child below it.
 
-An operating-system process kill does not provide a reliable suspending cleanup callback. When the
-application does have an explicit suspending shutdown boundary (tests, logout-driven container
-replacement, or a controlled host), call `manager.close()` before cancelling the coroutine context
-that owns it.
+Do not create a manager for each screen, request, or short-lived UI component. Manager recreation is
+supported, but repeatedly reopening storage adds unnecessary work and discards memory caching.
 
-## Restartable host
+## Shutdown
 
-`RestartableCacheManagerOwner` serializes host lifecycle transitions without blocking a platform
-thread:
+Call suspending `close()` when the owner has an explicit suspending shutdown boundary:
 
 ```kotlin
-val cacheOwner = RestartableCacheManagerOwner {
-    createCacheManager(
-        coroutineContext = hostScope.coroutineContext,
-        persistentStore = createPersistentStore(),
-    )
-}
-
-suspend fun startHost(): CacheManager = cacheOwner.start()
-
-suspend fun stopHost() {
-    cacheOwner.stop()
-    // Cancel hostScope only after stop() returns.
+try {
+    runApplication(cache)
+} finally {
+    cache.close()
 }
 ```
 
-Concurrent `start()` calls share one active manager. `stop()` detaches and closes it completely;
-the next `start()` invokes the factory for a fresh manager and persistent-store instance. Concurrent
-start/stop transitions are serialized. `close()` on the owner is an alias for `stop()`.
+Close is idempotent. It stops manager-owned work, clears process memory, and closes internal stores
+without cancelling the `CoroutineScope` supplied by the application. New cache operations are not
+valid after shutdown begins.
 
-The factory must never return an earlier manager or persistent-store instance after it was closed.
+Close active `CachedFile` leases when their readers finish. Prefer closing leases before closing the
+manager so deferred file cleanup can complete immediately.
 
-## Shutdown contract
+Mobile process termination does not provide a reliable suspending cleanup callback. A
+process-lifetime manager may simply be reclaimed by the operating system; durable cache recovery is
+performed the next time a manager is created. Tests, logout-driven container replacement, and
+controlled JVM hosts should call `close()` explicitly.
 
-Once the first `CacheManager.close()` begins:
+## Clearing
 
-- new resource registration and commands fail with `IllegalStateException`;
-- manager-owned hydration and source work is cancelled;
-- commands admitted before shutdown are allowed to release their lifecycle admission, including an
-  in-progress persistent write;
-- memory is cleared, then the persistent store is closed;
-- queued diagnostics are delivered before terminal `LIFECYCLE_CLOSE` delivery completes;
-- concurrent and later `close()` calls observe the same completion result;
-- cancellation of the initiating caller cannot abandon cleanup;
-- a persistent close failure is emitted as `PERSISTENT_STORE_FAILURE`, is rethrown to every close
-  caller, and does not make the terminal manager reusable.
+`clearAll()` clears memory values, persistent values, accumulated pages, and cached files owned by
+the manager. It does not
+close the manager, so later requests may cache again. Use it for logout or any boundary where all
+cached identities must be discarded.
 
-Close never cancels the host parent job supplied to `createCacheManager`.
-
-## Koin and synchronous disposal hooks
-
-A synchronous Koin `onClose` callback cannot prove completion of a suspending cache shutdown. Do
-not bridge it with `runBlocking` on a UI thread, `GlobalScope`, or an unowned fire-and-forget launch.
-
-For a restartable Koin container, keep `RestartableCacheManagerOwner` at the host boundary and make
-container shutdown itself suspending: call `cacheOwner.stop()`, await it, and only then stop Koin or
-cancel the owning scope. If the application has no suspending shutdown boundary, use a
-process-lifetime manager rather than pretending synchronous disposal completed cleanup.
+This version does not expose per-key, namespace, or partition invalidation. Use separate managers
+when separate lifecycle and global-clear boundaries are required, `CacheRefresh.ALWAYS` to force one
+address to reload, or a per-call `expiresAfter` override to make one address stale immediately.
