@@ -31,7 +31,7 @@ subprojects {
 
     pluginManager.withPlugin("com.vanniktech.maven.publish") {
         extensions.configure<MavenPublishBaseExtension> {
-            publishToMavenCentral(automaticRelease = true)
+            publishToMavenCentral()
             if (isMavenCentralPublication) {
                 signAllPublications()
             }
