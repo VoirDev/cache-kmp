@@ -24,6 +24,12 @@ public class CacheScopeBuilder<K : Any> internal constructor(
 
     public var storage: CacheStorage = CacheStorage.MEMORY
     public var expiresAfter: Duration = Duration.INFINITE
+
+    /**
+     * How long a value stays fresh, or `null` to stay fresh until it expires; see [CacheOptions]
+     * for how it differs from [expiresAfter].
+     */
+    public var revalidateAfter: Duration? = null
     public var maxMemoryEntries: Int = 100
     public var maxPayloadBytes: Int = 1_048_576
     public var partition: String = DEFAULT_CACHE_PARTITION
@@ -50,6 +56,7 @@ public class CacheScopeBuilder<K : Any> internal constructor(
             partition = partition,
             refresh = refresh,
             useStaleOnError = useStaleOnError,
+            revalidateAfter = revalidateAfter,
         )
         val fixedPartition = options.partition
         return CacheScope(

@@ -10,7 +10,7 @@ repository's `:cache` project:
 Each consumer declares exactly one library dependency:
 
 ```kotlin
-implementation("dev.voir:cache:1.0.0")
+implementation("dev.voir:cache:1.0.2")
 ```
 
 After publishing locally from the repository root, run:
@@ -18,6 +18,6 @@ After publishing locally from the repository root, run:
 ```shell
 ./gradlew -p samples/consumer \
   -PcacheRepository="$PWD/build/local-maven" \
-  -PcacheVersion=1.0.0 \
+  -PcacheVersion=1.0.2 \
   check --refresh-dependencies
 ```

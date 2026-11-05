@@ -16,8 +16,12 @@ import androidx.room3.Index
  * @property payloadVersion Positive codec format version.
  * @property validatedAtEpochSeconds Validation instant epoch-second component.
  * @property validatedAtNanoseconds Validation instant nanosecond component.
- * @property expiresAtEpochSeconds Optional expiration instant epoch-second component.
+ * @property expiresAtEpochSeconds Optional expiration instant epoch-second component; retention
+ * removes the row once it has passed.
  * @property expiresAtNanoseconds Optional expiration instant nanosecond component.
+ * @property staleAtEpochSeconds Optional staleness instant epoch-second component; the value
+ * requires revalidation once it has passed.
+ * @property staleAtNanoseconds Optional staleness instant nanosecond component.
  * @property writtenAtEpochSeconds Write instant epoch-second component.
  * @property writtenAtNanoseconds Write instant nanosecond component.
  * @property lastAccessedAtEpochSeconds Approximate retention-access epoch-second component.
@@ -55,6 +59,10 @@ internal class CacheEntryEntity(
     val expiresAtEpochSeconds: Long?,
     @ColumnInfo(name = "expires_at_nanoseconds")
     val expiresAtNanoseconds: Int?,
+    @ColumnInfo(name = "stale_at_epoch_seconds")
+    val staleAtEpochSeconds: Long?,
+    @ColumnInfo(name = "stale_at_nanoseconds")
+    val staleAtNanoseconds: Int?,
     @ColumnInfo(name = "written_at_epoch_seconds")
     val writtenAtEpochSeconds: Long,
     @ColumnInfo(name = "written_at_nanoseconds")

@@ -23,8 +23,7 @@ import dev.voir.cache.core.file.store.StagedFile
 import dev.voir.cache.core.file.store.StoredFileRecord
 import dev.voir.cache.core.key.EncodedCacheKey
 import dev.voir.cache.core.memory.InMemoryResourceStore
-import dev.voir.cache.core.memory.expirationAt
-import dev.voir.cache.core.model.CacheMetadata
+import dev.voir.cache.core.memory.metadataAt
 import dev.voir.cache.core.model.CacheSnapshot
 import dev.voir.cache.core.model.FetchFailure
 import dev.voir.cache.core.model.FetchResult
@@ -191,10 +190,7 @@ internal class DefaultFileCachedResource<K : Any, E : Any>(
                 return@ordered FileCacheDiscarded(store.current(encoded).toPublic())
             }
             val now = clock.now()
-            val metadata = CacheMetadata(
-                validatedAt = now,
-                expiresAt = expirationAt(freshness, now),
-            )
+            val metadata = metadataAt(freshness, now)
             when (
                 val committed = backend.commit(
                     FileStoreCommitRequest(

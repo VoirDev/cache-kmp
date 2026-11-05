@@ -23,6 +23,8 @@ internal fun PersistedCacheRecord.toEntity(): CacheEntryEntity = CacheEntryEntit
     validatedAtNanoseconds = metadata.validatedAt.nanosecondsOfSecond,
     expiresAtEpochSeconds = metadata.expiresAt?.epochSeconds,
     expiresAtNanoseconds = metadata.expiresAt?.nanosecondsOfSecond,
+    staleAtEpochSeconds = metadata.staleAt?.epochSeconds,
+    staleAtNanoseconds = metadata.staleAt?.nanosecondsOfSecond,
     writtenAtEpochSeconds = writtenAt.epochSeconds,
     writtenAtNanoseconds = writtenAt.nanosecondsOfSecond,
     lastAccessedAtEpochSeconds = lastAccessedAt.epochSeconds,
@@ -45,6 +47,7 @@ internal fun CacheEntryEntity.toRecord(): PersistedCacheRecord = PersistedCacheR
     metadata = CacheMetadata(
         validatedAt = Instant.fromEpochSeconds(validatedAtEpochSeconds, validatedAtNanoseconds),
         expiresAt = expiresAtEpochSeconds.toInstant(expiresAtNanoseconds),
+        staleAt = staleAtEpochSeconds.toInstant(staleAtNanoseconds),
     ),
     writtenAt = Instant.fromEpochSeconds(writtenAtEpochSeconds, writtenAtNanoseconds),
     lastAccessedAt = Instant.fromEpochSeconds(lastAccessedAtEpochSeconds, lastAccessedAtNanoseconds),

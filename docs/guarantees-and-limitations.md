@@ -6,6 +6,10 @@
 - `CacheRefresh.IF_NEEDED` returns a fresh value without invoking the loader.
 - `CacheRefresh.ALWAYS` invokes the loader even when a fresh value exists.
 - The effective expiration of each request is committed with its successful value or file.
+- A value cache can stay fresh for less time than it is kept: past `revalidateAfter` a value is
+  stale and `IF_NEEDED` reloads it, while it is still served, observed, and used as a stale-on-error
+  fallback until `expiresAfter` lets retention remove it. A value is never fresh past its
+  expiration.
 - Equal addresses share one in-flight loader. Different addresses may load concurrently.
 - A namespace has one key type, value type or file kind, storage mode, and set of stable limits
   within a manager. Incompatible reuse fails immediately.
@@ -42,6 +46,7 @@
 - File commits enforce per-entry, per-namespace entry, and per-namespace byte limits.
 - Whole-manager persistent and file caps are configured with `CacheManagerOptions`.
 - Startup recovery and pruning are internal and complete before manager creation returns.
+  Pruning removes expired values, not merely stale ones.
 - Retention maintenance afterwards is rate limited and runs in the background, so it never delays
   a cache request or repeats a whole-store scan on every call.
 - Stored values and files are cache data, not authoritative application records. A process or
@@ -52,6 +57,8 @@
 - `observe` supports direct and scoped memory or persistent values.
 - `observeFile` supports direct and scoped file caches and emits non-leased file metadata.
 - Observation emits current process-local state and never invokes an application loader.
+- `current` reads one scoped value entry once, after persistent restoration, without invoking a
+  loader.
 - Persistent collection starts or joins lazy disk hydration.
 - Cache operations, refresh activity, refresh failures, and clearing publish state changes to active
   collectors for the same manager and address.

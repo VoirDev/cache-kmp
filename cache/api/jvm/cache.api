@@ -25,13 +25,16 @@ public final class dev/voir/cache/CacheDuplicates : java/lang/Enum {
 }
 
 public final class dev/voir/cache/CacheEntryMetadata {
-	public fun <init> (Lkotlin/time/Instant;Lkotlin/time/Instant;)V
+	public fun <init> (Lkotlin/time/Instant;Lkotlin/time/Instant;Lkotlin/time/Instant;)V
+	public synthetic fun <init> (Lkotlin/time/Instant;Lkotlin/time/Instant;Lkotlin/time/Instant;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lkotlin/time/Instant;
 	public final fun component2 ()Lkotlin/time/Instant;
-	public final fun copy (Lkotlin/time/Instant;Lkotlin/time/Instant;)Ldev/voir/cache/CacheEntryMetadata;
-	public static synthetic fun copy$default (Ldev/voir/cache/CacheEntryMetadata;Lkotlin/time/Instant;Lkotlin/time/Instant;ILjava/lang/Object;)Ldev/voir/cache/CacheEntryMetadata;
+	public final fun component3 ()Lkotlin/time/Instant;
+	public final fun copy (Lkotlin/time/Instant;Lkotlin/time/Instant;Lkotlin/time/Instant;)Ldev/voir/cache/CacheEntryMetadata;
+	public static synthetic fun copy$default (Ldev/voir/cache/CacheEntryMetadata;Lkotlin/time/Instant;Lkotlin/time/Instant;Lkotlin/time/Instant;ILjava/lang/Object;)Ldev/voir/cache/CacheEntryMetadata;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getExpiresAt ()Lkotlin/time/Instant;
+	public final fun getStaleAt ()Lkotlin/time/Instant;
 	public final fun getValidatedAt ()Lkotlin/time/Instant;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -170,6 +173,7 @@ public final class dev/voir/cache/CacheManagerOptions {
 }
 
 public final class dev/voir/cache/CacheObservationApiKt {
+	public static final fun current (Ldev/voir/cache/CacheManager;Ldev/voir/cache/CacheScope;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun observe (Ldev/voir/cache/CacheManager;Ldev/voir/cache/CacheScope;Ljava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun observeDirect (Ldev/voir/cache/CacheManager;Ljava/lang/Object;Lkotlinx/serialization/KSerializer;Lkotlinx/serialization/KSerializer;Ldev/voir/cache/CacheOptions;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun observeFile (Ldev/voir/cache/CacheManager;Ldev/voir/cache/CacheFileScope;Ljava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
@@ -177,8 +181,8 @@ public final class dev/voir/cache/CacheObservationApiKt {
 }
 
 public final class dev/voir/cache/CacheOptions {
-	public synthetic fun <init> (Ljava/lang/String;Ldev/voir/cache/CacheStorage;JIILjava/lang/String;Ldev/voir/cache/CacheRefresh;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljava/lang/String;Ldev/voir/cache/CacheStorage;JIILjava/lang/String;Ldev/voir/cache/CacheRefresh;ZLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Ldev/voir/cache/CacheStorage;JIILjava/lang/String;Ldev/voir/cache/CacheRefresh;ZLkotlin/time/Duration;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Ldev/voir/cache/CacheStorage;JIILjava/lang/String;Ldev/voir/cache/CacheRefresh;ZLkotlin/time/Duration;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Ldev/voir/cache/CacheStorage;
 	public final fun component3-UwyO8pc ()J
@@ -187,8 +191,9 @@ public final class dev/voir/cache/CacheOptions {
 	public final fun component6 ()Ljava/lang/String;
 	public final fun component7 ()Ldev/voir/cache/CacheRefresh;
 	public final fun component8 ()Z
-	public final fun copy-KVH2U2I (Ljava/lang/String;Ldev/voir/cache/CacheStorage;JIILjava/lang/String;Ldev/voir/cache/CacheRefresh;Z)Ldev/voir/cache/CacheOptions;
-	public static synthetic fun copy-KVH2U2I$default (Ldev/voir/cache/CacheOptions;Ljava/lang/String;Ldev/voir/cache/CacheStorage;JIILjava/lang/String;Ldev/voir/cache/CacheRefresh;ZILjava/lang/Object;)Ldev/voir/cache/CacheOptions;
+	public final fun component9-FghU774 ()Lkotlin/time/Duration;
+	public final fun copy-eQjEyrU (Ljava/lang/String;Ldev/voir/cache/CacheStorage;JIILjava/lang/String;Ldev/voir/cache/CacheRefresh;ZLkotlin/time/Duration;)Ldev/voir/cache/CacheOptions;
+	public static synthetic fun copy-eQjEyrU$default (Ldev/voir/cache/CacheOptions;Ljava/lang/String;Ldev/voir/cache/CacheStorage;JIILjava/lang/String;Ldev/voir/cache/CacheRefresh;ZLkotlin/time/Duration;ILjava/lang/Object;)Ldev/voir/cache/CacheOptions;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getExpiresAfter-UwyO8pc ()J
 	public final fun getMaxMemoryEntries ()I
@@ -196,6 +201,7 @@ public final class dev/voir/cache/CacheOptions {
 	public final fun getNamespace ()Ljava/lang/String;
 	public final fun getPartition ()Ljava/lang/String;
 	public final fun getRefresh ()Ldev/voir/cache/CacheRefresh;
+	public final fun getRevalidateAfter-FghU774 ()Lkotlin/time/Duration;
 	public final fun getStorage ()Ldev/voir/cache/CacheStorage;
 	public final fun getUseStaleOnError ()Z
 	public fun hashCode ()I
@@ -203,16 +209,18 @@ public final class dev/voir/cache/CacheOptions {
 }
 
 public final class dev/voir/cache/CacheOverrides {
-	public synthetic fun <init> (Lkotlin/time/Duration;Ldev/voir/cache/CacheRefresh;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lkotlin/time/Duration;Ldev/voir/cache/CacheRefresh;Ljava/lang/Boolean;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlin/time/Duration;Ldev/voir/cache/CacheRefresh;Ljava/lang/Boolean;Lkotlin/time/Duration;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlin/time/Duration;Ldev/voir/cache/CacheRefresh;Ljava/lang/Boolean;Lkotlin/time/Duration;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1-FghU774 ()Lkotlin/time/Duration;
 	public final fun component2 ()Ldev/voir/cache/CacheRefresh;
 	public final fun component3 ()Ljava/lang/Boolean;
-	public final fun copy-k1IrOU0 (Lkotlin/time/Duration;Ldev/voir/cache/CacheRefresh;Ljava/lang/Boolean;)Ldev/voir/cache/CacheOverrides;
-	public static synthetic fun copy-k1IrOU0$default (Ldev/voir/cache/CacheOverrides;Lkotlin/time/Duration;Ldev/voir/cache/CacheRefresh;Ljava/lang/Boolean;ILjava/lang/Object;)Ldev/voir/cache/CacheOverrides;
+	public final fun component4-FghU774 ()Lkotlin/time/Duration;
+	public final fun copy-OHKlveU (Lkotlin/time/Duration;Ldev/voir/cache/CacheRefresh;Ljava/lang/Boolean;Lkotlin/time/Duration;)Ldev/voir/cache/CacheOverrides;
+	public static synthetic fun copy-OHKlveU$default (Ldev/voir/cache/CacheOverrides;Lkotlin/time/Duration;Ldev/voir/cache/CacheRefresh;Ljava/lang/Boolean;Lkotlin/time/Duration;ILjava/lang/Object;)Ldev/voir/cache/CacheOverrides;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getExpiresAfter-FghU774 ()Lkotlin/time/Duration;
 	public final fun getRefresh ()Ldev/voir/cache/CacheRefresh;
+	public final fun getRevalidateAfter-FghU774 ()Lkotlin/time/Duration;
 	public final fun getUseStaleOnError ()Ljava/lang/Boolean;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -352,6 +360,7 @@ public final class dev/voir/cache/CacheScopeBuilder {
 	public final fun getMaxPayloadBytes ()I
 	public final fun getPartition ()Ljava/lang/String;
 	public final fun getRefresh ()Ldev/voir/cache/CacheRefresh;
+	public final fun getRevalidateAfter-FghU774 ()Lkotlin/time/Duration;
 	public final fun getStorage ()Ldev/voir/cache/CacheStorage;
 	public final fun getUseStaleOnError ()Z
 	public final fun partitionBy (Lkotlin/jvm/functions/Function1;)V
@@ -360,6 +369,7 @@ public final class dev/voir/cache/CacheScopeBuilder {
 	public final fun setMaxPayloadBytes (I)V
 	public final fun setPartition (Ljava/lang/String;)V
 	public final fun setRefresh (Ldev/voir/cache/CacheRefresh;)V
+	public final fun setRevalidateAfter-BwNAW2A (Lkotlin/time/Duration;)V
 	public final fun setStorage (Ldev/voir/cache/CacheStorage;)V
 	public final fun setUseStaleOnError (Z)V
 }
