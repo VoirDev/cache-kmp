@@ -88,7 +88,7 @@ private fun <I : Any, C : Any> PagedCacheSnapshot<I, C, Throwable>.toPagedState(
         PagedCacheActivity.APPENDING -> CachePageActivity.APPENDING
     },
     metadata = metadata?.let { current ->
-        CacheEntryMetadata(validatedAt = current.validatedAt, expiresAt = current.expiresAt)
+        CacheEntryMetadata(validatedAt = current.validatedAt, expiresAt = current.expiresAt, staleAt = current.staleAt)
     },
     refreshError = refreshError,
     appendError = appendError,

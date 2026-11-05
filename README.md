@@ -7,7 +7,7 @@ initialize a codec, database, file index, or storage adapter.
 
 ## Install
 
-Version `1.0.0` is published as one artifact:
+Version `1.0.2` is published as one artifact:
 
 ```kotlin
 plugins {
@@ -18,7 +18,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("dev.voir:cache:1.0.0")
+            implementation("dev.voir:cache:1.0.2")
         }
     }
 }
@@ -134,8 +134,26 @@ val shortLivedProfile = cache.cache(
 }
 ```
 
-Per-call overrides can change expiration, refresh behavior, and stale-on-error fallback without
-redeclaring the scope. Storage and capacity limits remain stable for the namespace.
+Per-call overrides can change expiration, freshness, refresh behavior, and stale-on-error fallback
+without redeclaring the scope. Storage and capacity limits remain stable for the namespace.
+
+### Keeping values longer than they stay fresh
+
+`expiresAfter` is how long a value is kept; `revalidateAfter` is how long it stays fresh. A value
+past `revalidateAfter` is stale: `CacheRefresh.IF_NEEDED` loads it again, but until then it is still
+served, observed, and used when a load fails. Only past `expiresAfter` may retention remove it,
+including from persistent storage when a manager opens.
+
+```kotlin
+val shelves = cacheScope<ShelvesKey, Shelves>("shelves") {
+    storage = CacheStorage.PERSISTENT
+    revalidateAfter = 15.minutes   // read again after this
+    expiresAfter = 30.days         // shown at once, even offline, until this
+}
+```
+
+Left unset, `revalidateAfter` equals `expiresAfter`, and a value is stale exactly when it may be
+removed.
 
 ## Paged caching
 
@@ -312,6 +330,10 @@ observation contract.
 ## Request behavior
 
 - `CacheRefresh.IF_NEEDED` reuses a fresh entry and loads only when absent or stale.
+- A value is stale past `revalidateAfter` and may be removed only past `expiresAfter`; until then a
+  stale value is still served, observed, and used as a failure fallback.
+- `current(scope, key)` reads one value entry's state once, after persistent restoration, without
+  invoking the loader.
 - `CacheRefresh.ALWAYS` always invokes the loader and commits the successful result.
 - Concurrent requests for the same serialized namespace, partition, and key share one loader.
 - Loader exceptions are rethrown. When stale data exists and `useStaleOnError` is `true`, that data

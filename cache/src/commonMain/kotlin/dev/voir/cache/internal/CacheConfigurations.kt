@@ -14,18 +14,33 @@ internal data class ValueCacheConfiguration(
     val namespace: String,
     val storage: CacheStorage,
     val expiresAfter: Duration,
+    val revalidateAfter: Duration?,
     val maxMemoryEntries: Int,
     val maxPayloadBytes: Int,
     val refresh: CacheRefresh,
     val useStaleOnError: Boolean,
 ) {
-    fun request(partition: String, overrides: CacheOverrides): ValueRequestConfiguration =
-        ValueRequestConfiguration(
+    /**
+     * Resolves the policy one request runs with.
+     *
+     * A value never stays fresh longer than it is kept, so a freshness longer than the resolved
+     * expiration — an override shortening only the expiration, say — is cut to it.
+     *
+     * @param partition Partition the request's key belongs to.
+     * @param overrides What the call changes for itself.
+     * @return The request's effective policy.
+     */
+    fun request(partition: String, overrides: CacheOverrides): ValueRequestConfiguration {
+        val effectiveExpiresAfter = overrides.expiresAfter ?: expiresAfter
+        val effectiveRevalidateAfter = overrides.revalidateAfter ?: revalidateAfter ?: effectiveExpiresAfter
+        return ValueRequestConfiguration(
             partition = partition,
-            expiresAfter = overrides.expiresAfter ?: expiresAfter,
+            expiresAfter = effectiveExpiresAfter,
+            revalidateAfter = minOf(effectiveRevalidateAfter, effectiveExpiresAfter),
             refresh = overrides.refresh ?: refresh,
             useStaleOnError = overrides.useStaleOnError ?: useStaleOnError,
         )
+    }
 
     companion object {
         /**
@@ -41,6 +56,7 @@ internal data class ValueCacheConfiguration(
             namespace = options.namespace ?: "value.${valueSerializer.descriptor.serialName}",
             storage = options.storage,
             expiresAfter = options.expiresAfter,
+            revalidateAfter = options.revalidateAfter,
             maxMemoryEntries = options.maxMemoryEntries,
             maxPayloadBytes = options.maxPayloadBytes,
             refresh = options.refresh,
@@ -53,6 +69,7 @@ internal data class ValueCacheConfiguration(
                 namespace = namespace,
                 storage = options.storage,
                 expiresAfter = options.expiresAfter,
+                revalidateAfter = options.revalidateAfter,
                 maxMemoryEntries = options.maxMemoryEntries,
                 maxPayloadBytes = options.maxPayloadBytes,
                 refresh = options.refresh,
@@ -64,6 +81,7 @@ internal data class ValueCacheConfiguration(
 internal data class ValueRequestConfiguration(
     val partition: String,
     val expiresAfter: Duration,
+    val revalidateAfter: Duration,
     val refresh: CacheRefresh,
     val useStaleOnError: Boolean,
 )

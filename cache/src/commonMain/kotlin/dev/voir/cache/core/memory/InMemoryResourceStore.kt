@@ -222,10 +222,7 @@ internal class InMemoryResourceStore<V : Any, E : Any>(
         val revision = expectedRevision + 1
         revisions[key] = revision
         val validatedAt = committedMetadata?.validatedAt ?: clock.now()
-        val metadata = committedMetadata ?: CacheMetadata(
-            validatedAt = validatedAt,
-            expiresAt = expirationAt(committedFreshnessPolicy, validatedAt),
-        )
+        val metadata = committedMetadata ?: metadataAt(committedFreshnessPolicy, validatedAt)
         val snapshot = CacheSnapshot<V, E>(
             value = value,
             freshness = freshnessAt(metadata, validatedAt),

@@ -50,6 +50,8 @@ Public contract tests should cover:
 
 - stale fallback enabled and disabled;
 - direct and scoped expiration overrides;
+- values kept past `revalidateAfter`: stale, still served and observed, reloaded by `IF_NEEDED`;
+- `current` after persistent recreation, without invoking the loader;
 - forced refresh;
 - concurrent equal-key calls invoking one loader;
 - namespace configuration conflicts;

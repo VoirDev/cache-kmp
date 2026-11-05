@@ -81,6 +81,29 @@ suspend fun loadProfile(forceRefresh: Boolean) {
 This separation prevents every new collector or UI recreation from unexpectedly starting network
 work.
 
+## Validation metadata
+
+`CacheState.metadata` carries `validatedAt`, when the value was last loaded; `staleAt`, when it
+requires revalidation; and `expiresAt`, when retention may remove it. `staleAt` equals `expiresAt`
+unless the cache sets a shorter `revalidateAfter`, and is never later. Either is `null` when that
+moment never comes.
+
+## Reading state once
+
+`current(scope, key)` returns one value entry's state without invoking a loader. Unlike the first
+state `observe` emits, it is read after the entry has been restored from persistent storage, so it
+tells reliably whether a value is kept and whether it is still fresh. Use it when one source request
+loads many entries and the caller must decide which keys to ask for:
+
+```kotlin
+val missing = keys.filter { key ->
+    val state = cache.current(profiles, key)
+    !state.hasValue || state.isStale
+}
+```
+
+`current` supports scoped value caches. It is a single read, not a subscription.
+
 ## Persistent hydration
 
 Collection starts or joins lazy hydration for a persistent value. The flow emits current memory

@@ -3,9 +3,8 @@ package dev.voir.cache.core.internal
 import dev.voir.cache.core.key.CacheNamespace
 import dev.voir.cache.core.key.EncodedCacheKey
 import dev.voir.cache.core.memory.InMemoryClearTarget
-import dev.voir.cache.core.memory.expirationAt
+import dev.voir.cache.core.memory.metadataAt
 import dev.voir.cache.core.memory.freshnessAt
-import dev.voir.cache.core.model.CacheMetadata
 import dev.voir.cache.core.paging.FetchedPage
 import dev.voir.cache.core.paging.PagedCacheActivity
 import dev.voir.cache.core.paging.PagedCacheBoundary
@@ -152,7 +151,7 @@ internal class PagedMemoryStore<I : Any, C : Any, E : Any>(
     ): PagedCacheSnapshot<I, C, E>? = mutex.withLock {
         if (revisionOf(key) != expectedRevision) return@withLock null
         val now = clock.now()
-        val metadata = CacheMetadata(now, expirationAt(freshnessPolicy, now))
+        val metadata = metadataAt(freshnessPolicy, now)
         var boundary = terminalBoundary(page.items, requestedCursor = null, page.nextCursor, emptySet())
         var items = normalize(page.items)
         if (items.size > memoryPolicy.maxItemsPerQuery) {

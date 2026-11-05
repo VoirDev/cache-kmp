@@ -6,10 +6,15 @@ import androidx.room3.RoomDatabase
 import dev.voir.cache.room.internal.dao.CacheEntryDao
 import dev.voir.cache.room.internal.entity.CacheEntryEntity
 
-/** Internal Room database containing the generic cache table. */
+/**
+ * Internal Room database containing the generic cache table.
+ *
+ * Version 2 stores when a value turns stale apart from when it expires. Earlier versions are not
+ * migrated: cached values are disposable, and the store rebuilds a schema it cannot read.
+ */
 @Database(
     entities = [CacheEntryEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 @ConstructedBy(CacheDatabaseConstructor::class)

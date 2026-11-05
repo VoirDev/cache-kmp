@@ -12,6 +12,11 @@ class CacheOptionsTest {
         assertFailsWith<IllegalArgumentException> { CacheOptions(maxMemoryEntries = 0) }
         assertFailsWith<IllegalArgumentException> { CacheOptions(maxPayloadBytes = 0) }
         assertFailsWith<IllegalArgumentException> { CacheOptions(partition = "") }
+        assertFailsWith<IllegalArgumentException> { CacheOptions(revalidateAfter = (-1).seconds) }
+        assertFailsWith<IllegalArgumentException> {
+            CacheOptions(expiresAfter = 1.seconds, revalidateAfter = 2.seconds)
+        }
+        assertFailsWith<IllegalArgumentException> { CacheOverrides(revalidateAfter = (-1).seconds) }
     }
 
     @Test

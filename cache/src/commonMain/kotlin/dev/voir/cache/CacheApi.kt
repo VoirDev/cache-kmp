@@ -39,6 +39,7 @@ public suspend fun <K : Any, V : Any> CacheManager.cache(
             key = key,
             partition = request.partition,
             expiresAfter = request.expiresAfter,
+            revalidateAfter = request.revalidateAfter,
             refresh = request.refresh,
             useStaleOnError = request.useStaleOnError,
             load = load,
@@ -90,14 +91,16 @@ internal suspend fun <K : Any, V : Any> CacheManager.cacheDirect(
     load: suspend () -> V,
 ): V {
     val configuration = ValueCacheConfiguration.from(options, valueSerializer)
+    val request = configuration.request(options.partition, CacheOverrides())
     val runtime = runtimes.value(configuration, keySerializer, valueSerializer)
     return runtime.cache(
         ValueRequest(
             key = key,
-            partition = options.partition,
-            expiresAfter = options.expiresAfter,
-            refresh = options.refresh,
-            useStaleOnError = options.useStaleOnError,
+            partition = request.partition,
+            expiresAfter = request.expiresAfter,
+            revalidateAfter = request.revalidateAfter,
+            refresh = request.refresh,
+            useStaleOnError = request.useStaleOnError,
             load = load,
         )
     ).also { engine.scheduleMaintenance() }

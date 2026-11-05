@@ -26,14 +26,29 @@ public enum class CacheActivity {
     REFRESHING,
 }
 
-/** Validation timestamps attached to an observed cached value or file. */
+/**
+ * Validation timestamps attached to an observed cached value or file.
+ *
+ * @property validatedAt When the value was last loaded from its source.
+ * @property expiresAt When retention may remove the value, or `null` when it is kept until evicted
+ * or cleared.
+ * @property staleAt When the value requires revalidation, or `null` when it never does. Equal to
+ * [expiresAt] unless the cache revalidates sooner than it expires; never later than it.
+ */
 public data class CacheEntryMetadata public constructor(
     public val validatedAt: Instant,
     public val expiresAt: Instant?,
+    public val staleAt: Instant? = expiresAt,
 ) {
     init {
         require(expiresAt == null || expiresAt >= validatedAt) {
             "Cache expiration cannot be earlier than validation."
+        }
+        require(staleAt == null || staleAt >= validatedAt) {
+            "Cache staleness cannot be earlier than validation."
+        }
+        require(expiresAt == null || (staleAt != null && staleAt <= expiresAt)) {
+            "Cache staleness cannot be later than expiration."
         }
     }
 }

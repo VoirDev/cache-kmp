@@ -1,6 +1,6 @@
 # Compatibility
 
-The validated baseline for `1.0.0` is:
+The validated baseline for `1.0.2` is:
 
 | Surface | Validated version or target |
 | --- | --- |

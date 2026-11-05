@@ -48,6 +48,7 @@ import dev.voir.cache.core.policy.FreshnessPolicy
 import dev.voir.cache.core.policy.MemoryPolicy
 import dev.voir.cache.core.policy.NeverExpire
 import dev.voir.cache.core.policy.PagedMemoryPolicy
+import dev.voir.cache.core.policy.RevalidateAfter
 import dev.voir.cache.core.storage.memoryOnly
 import dev.voir.cache.core.storage.persistent
 import dev.voir.cache.core.time.CacheClock
@@ -163,7 +164,7 @@ internal class CacheRuntimeRegistry(
             ),
             fetch = { request -> FetchSuccess(request.load()) },
             mapUnexpectedFailure = { failure -> failure },
-            freshnessForKey = { request -> request.expiresAfter.toFreshnessPolicy() },
+            freshnessForKey = { request -> freshnessPolicy(request.expiresAfter, request.revalidateAfter) },
         )
         return ValueCacheRuntime(engine.clock, resource)
     }
@@ -237,10 +238,17 @@ internal class ValueCacheRuntime<K : Any, V : Any>(
     fun observe(request: ValueRequest<K, V>): Flow<CacheSnapshot<V, Throwable>> =
         resource.observe(request)
 
+    /**
+     * @param request The entry's address.
+     * @return The entry's state once persistent storage has been restored, without loading it.
+     */
+    suspend fun current(request: ValueRequest<K, V>): CacheSnapshot<V, Throwable> =
+        resource.current(request)
+
     suspend fun cache(request: ValueRequest<K, V>): V {
         if (request.refresh != CacheRefresh.ALWAYS) {
             val snapshot = resource.current(request)
-            if (snapshot.isFreshFor(clock, request.expiresAfter)) return checkNotNull(snapshot.value)
+            if (snapshot.isFreshFor(clock, request.revalidateAfter)) return checkNotNull(snapshot.value)
         }
         return when (val result = resource.refresh(request)) {
             is CacheSuccess -> result.value
@@ -326,6 +334,7 @@ internal class ValueRequest<K : Any, V : Any>(
     val key: K,
     val partition: String,
     val expiresAfter: Duration,
+    val revalidateAfter: Duration,
     val refresh: CacheRefresh,
     val useStaleOnError: Boolean,
     val load: suspend () -> V,
@@ -404,21 +413,39 @@ private data class RuntimeFingerprint(
     }
 }
 
+/** @return The policy that keeps a value until this duration has passed and never revalidates it sooner. */
 private fun Duration.toFreshnessPolicy(): FreshnessPolicy =
     if (this == Duration.INFINITE) NeverExpire else ExpireAfter(this)
 
 /**
- * Re-evaluates a committed entry against the expiration this request asks for.
+ * Builds the policy for a value kept for [expiresAfter] and fresh for [revalidateAfter].
  *
- * The entry stores the expiration that was effective when it was committed. A later request may
+ * @param expiresAfter How long the value is kept before retention may remove it.
+ * @param revalidateAfter How long it stays fresh; already resolved to no more than [expiresAfter].
+ * @return The policy committed values of the request are given.
+ */
+private fun freshnessPolicy(expiresAfter: Duration, revalidateAfter: Duration): FreshnessPolicy = when {
+    expiresAfter != Duration.INFINITE -> ExpireAfter(duration = expiresAfter, revalidateAfter = revalidateAfter)
+    revalidateAfter != Duration.INFINITE -> RevalidateAfter(revalidateAfter)
+    else -> NeverExpire
+}
+
+/**
+ * Re-evaluates a committed entry against the freshness this request asks for.
+ *
+ * The entry stores the staleness that was effective when it was committed. A later request may
  * ask for a shorter one, and must then reload rather than reuse an entry the engine still
  * considers fresh.
+ *
+ * @param clock Supplies the current instant.
+ * @param freshFor How long the request accepts a value as fresh after its validation.
+ * @return Whether the entry may be reused without loading.
  */
-private fun CacheSnapshot<*, *>.isFreshFor(clock: CacheClock, expiresAfter: Duration): Boolean {
+private fun CacheSnapshot<*, *>.isFreshFor(clock: CacheClock, freshFor: Duration): Boolean {
     if (value == null || freshness != CacheFreshness.FRESH) return false
     val metadata = metadata ?: return false
-    if (expiresAfter == Duration.INFINITE) return true
-    return clock.now() < metadata.validatedAt + expiresAfter
+    if (freshFor == Duration.INFINITE) return true
+    return clock.now() < metadata.validatedAt + freshFor
 }
 
 /**

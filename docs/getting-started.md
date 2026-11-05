@@ -13,7 +13,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("dev.voir:cache:1.0.0")
+            implementation("dev.voir:cache:1.0.2")
         }
     }
 }
@@ -138,8 +138,24 @@ val profile = cache.cache(
 }
 ```
 
-The effective expiration is stored with the committed entry. A zero-duration result is immediately
-stale, so the next `IF_NEEDED` request loads again.
+The effective expiration and freshness are stored with the committed entry. A zero-duration result
+is immediately stale, so the next `IF_NEEDED` request loads again.
+
+To keep a value on the device longer than it stays fresh, set `revalidateAfter` below
+`expiresAfter`. Past `revalidateAfter` the value is stale: it is still returned on a load failure
+and still observed, but the next `IF_NEEDED` request loads again. Only past `expiresAfter` may
+retention remove it:
+
+```kotlin
+val shelves = cacheScope<ShelvesKey, Shelves>("shelves") {
+    storage = CacheStorage.PERSISTENT
+    revalidateAfter = 15.minutes
+    expiresAfter = 30.days
+}
+```
+
+Left unset, `revalidateAfter` equals `expiresAfter`. It must not exceed `expiresAfter` in a scope or
+`CacheOptions`; a per-call override longer than the call's expiration is cut to it.
 
 ## 6. Observe changes
 

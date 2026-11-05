@@ -44,9 +44,46 @@ public fun <K : Any, V : Any> CacheManager.observe(
         key = key,
         partition = request.partition,
         expiresAfter = request.expiresAfter,
+        revalidateAfter = request.revalidateAfter,
         keySerializer = scope.keySerializer,
         valueSerializer = scope.valueSerializer,
     )
+}
+
+/**
+ * Reads one entry in a reusable value-cache [scope] once, without invoking its source loader.
+ *
+ * Unlike the first state [observe] emits, this one is read after the entry has been restored from
+ * persistent storage, so it tells reliably whether a value is kept and whether it is still fresh —
+ * for a caller that loads many entries in one source request and needs to know which to ask for.
+ *
+ * @param scope The entry's cache.
+ * @param key The entry's key.
+ * @return The entry's state now.
+ */
+public suspend fun <K : Any, V : Any> CacheManager.current(
+    scope: CacheScope<K, V>,
+    key: K,
+): CacheState<V> {
+    val request = scope.configuration.request(scope.partitionForKey(key), CacheOverrides())
+    require(request.partition.isNotBlank()) { "Cache partition must not be blank." }
+    val runtime = runtimes.value(
+        configuration = scope.configuration,
+        keySerializer = scope.keySerializer,
+        valueSerializer = scope.valueSerializer,
+    )
+    val snapshot = runtime.current(
+        ValueRequest(
+            key = key,
+            partition = request.partition,
+            expiresAfter = request.expiresAfter,
+            revalidateAfter = request.revalidateAfter,
+            refresh = CacheRefresh.IF_NEEDED,
+            useStaleOnError = true,
+            load = { error("Reading cache state must not invoke a source loader.") },
+        )
+    )
+    return snapshot.toCacheState()
 }
 
 /**
@@ -87,14 +124,19 @@ internal fun <K : Any, V : Any> CacheManager.observeDirect(
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>,
     options: CacheOptions,
-): Flow<CacheState<V>> = observeValue(
-    configuration = ValueCacheConfiguration.from(options, valueSerializer),
-    key = key,
-    partition = options.partition,
-    expiresAfter = options.expiresAfter,
-    keySerializer = keySerializer,
-    valueSerializer = valueSerializer,
-)
+): Flow<CacheState<V>> {
+    val configuration = ValueCacheConfiguration.from(options, valueSerializer)
+    val request = configuration.request(options.partition, CacheOverrides())
+    return observeValue(
+        configuration = configuration,
+        key = key,
+        partition = request.partition,
+        expiresAfter = request.expiresAfter,
+        revalidateAfter = request.revalidateAfter,
+        keySerializer = keySerializer,
+        valueSerializer = valueSerializer,
+    )
+}
 
 @PublishedApi
 internal fun <K : Any> CacheManager.observeFileDirect(
@@ -115,6 +157,7 @@ private fun <K : Any, V : Any> CacheManager.observeValue(
     key: K,
     partition: String,
     expiresAfter: Duration,
+    revalidateAfter: Duration,
     keySerializer: KSerializer<K>,
     valueSerializer: KSerializer<V>,
 ): Flow<CacheState<V>> = flow {
@@ -123,6 +166,7 @@ private fun <K : Any, V : Any> CacheManager.observeValue(
         key = key,
         partition = partition,
         expiresAfter = expiresAfter,
+        revalidateAfter = revalidateAfter,
         refresh = CacheRefresh.IF_NEEDED,
         useStaleOnError = true,
         load = { error("Cache observation must not invoke a source loader.") },
@@ -175,7 +219,7 @@ private fun <V : Any, R : Any> CoreCacheSnapshot<V, Throwable>.toCacheState(
         CoreCacheActivity.REFRESHING -> CacheActivity.REFRESHING
     },
     metadata = metadata?.let { current ->
-        CacheEntryMetadata(validatedAt = current.validatedAt, expiresAt = current.expiresAt)
+        CacheEntryMetadata(validatedAt = current.validatedAt, expiresAt = current.expiresAt, staleAt = current.staleAt)
     },
     refreshError = refreshError,
 )

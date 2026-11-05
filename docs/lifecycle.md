@@ -46,4 +46,5 @@ cached identities must be discarded.
 
 This version does not expose per-key, namespace, or partition invalidation. Use separate managers
 when separate lifecycle and global-clear boundaries are required, `CacheRefresh.ALWAYS` to force one
-address to reload, or a per-call `expiresAfter` override to make one address stale immediately.
+address to reload, a per-call `revalidateAfter` override to make the value one call commits stale
+sooner while it is still kept, or a per-call `expiresAfter` override to shorten how long it is kept.

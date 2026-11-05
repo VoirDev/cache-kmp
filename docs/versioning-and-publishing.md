@@ -5,7 +5,7 @@
 Consumers add exactly one Kotlin Multiplatform artifact:
 
 ```kotlin
-implementation("dev.voir:cache:1.0.0")
+implementation("dev.voir:cache:1.0.2")
 ```
 
 Gradle metadata selects the Android, iOS, JVM, or common variant automatically. Every publication
@@ -36,7 +36,7 @@ the ABI diff and running:
 
 ./gradlew -p samples/consumer \
   -PcacheRepository="$PWD/build/local-maven" \
-  -PcacheVersion=1.0.0 \
+  -PcacheVersion=1.0.2 \
   check --refresh-dependencies
 ```
 
